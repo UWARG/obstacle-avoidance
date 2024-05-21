@@ -1,0 +1,8 @@
+# IDE
+.idea/
+.vscode/
+# Python
+__pycache__/
+venv/
+# Logging
+*log*
