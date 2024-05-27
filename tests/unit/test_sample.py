@@ -10,7 +10,7 @@ class TestSample:
     This class runs a basic test
     """
 
-    def test_add(self):
+    def test_add(self) -> None:
         """
         Test addition
         """
