@@ -2,8 +2,6 @@
 Sample test class, delete when tests are written
 """
 
-import pytest
-
 
 class TestSample:
     """
