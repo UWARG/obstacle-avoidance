@@ -17,7 +17,7 @@ class DronePositionLocal:
             east: float, 
             down: float
         ) -> "tuple[bool, DronePositionLocal | None]":
-        return True, DronePositionLocal(north, east, down)
+        return True, DronePositionLocal(cls.__create_key, north, east, down)
     
     def __init__(
             self,
@@ -55,7 +55,7 @@ class DroneOdometryLocal:
         
         timestamp = time.time()
 
-        return True, DroneOdometryLocal(drone_position, drone_orientation, timestamp)
+        return True, DroneOdometryLocal(cls.__create_key, drone_position, drone_orientation, timestamp)
     
 
     def __init__(
