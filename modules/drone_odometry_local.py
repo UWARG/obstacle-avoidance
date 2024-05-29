@@ -32,6 +32,9 @@ class DronePositionLocal:
         self.down = down
 
     def __str__(self) -> str:
+        """
+        String representation
+        """
         return f"{self.__class__}: North: {self.north}, East: {self.east}, Down: {self.down}."
 
 
@@ -78,6 +81,9 @@ class DroneOdometryLocal:
         self.timestamp = timestamp
 
     def __str__(self) -> str:
+        """
+        String representation
+        """
         return f"{self.__class__},\
             {self.local_position}, \
                 DroneOrientation: Roll: {self.drone_orientation.roll}, Pitch: {self.drone_orientation.pitch}, Yaw: {self.drone_orientation.yaw}.\
