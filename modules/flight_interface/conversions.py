@@ -5,7 +5,7 @@ from ..common.mavlink.modules import drone_odometry
 
 
 def position_global_to_local(
-    global_position, home_location
+    global_position: drone_odometry.DronePosition, home_location: drone_odometry.DronePosition
 ) -> "tuple[bool, drone_odometry_local.DronePositionLocal | None]":
     """
     Converts global position (geodetic) to local position (NED)
@@ -27,7 +27,8 @@ def position_global_to_local(
 
 
 def position_local_to_global(
-    local_position, home_location
+    local_position: drone_odometry_local.DronePositionLocal,
+    home_location: drone_odometry.DronePosition,
 ) -> "tuple[bool, drone_odometry.DronePosition | None]":
     """
     Converts local position (NED) to global position (geodetic)
