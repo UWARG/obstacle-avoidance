@@ -34,6 +34,9 @@ class FlightInterface:
         controller: flight_controller.FlightController,
         home_location: drone_odometry.DroneLocation,
     ) -> None:
+        """
+        Private constructor, use create() method.
+        """
         assert create_key is FlightInterface.__create_key, "Use create() method"
 
         self.controller = controller
