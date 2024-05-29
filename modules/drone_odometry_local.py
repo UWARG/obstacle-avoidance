@@ -24,6 +24,9 @@ class DronePositionLocal:
         return True, DronePositionLocal(cls.__create_key, north, east, down)
 
     def __init__(self, create_key: object, north: float, east: float, down: float) -> None:
+        """
+        Private constructor, use create() method.
+        """
 
         assert create_key is DronePositionLocal.__create_key, "Use create() method"
 
@@ -73,6 +76,9 @@ class DroneOdometryLocal:
         drone_orientation: drone_odometry.DroneOrientation,
         timestamp: float,
     ) -> None:
+        """
+        Private constructor, use create() method.
+        """
 
         assert create_key is DroneOdometryLocal.__create_key, "Use create() method"
 
