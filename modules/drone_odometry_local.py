@@ -1,3 +1,7 @@
+"""
+Data structure for local odometry data (local position, orientation, and timestamp)
+"""
+
 import time
 
 from .common.mavlink.modules import drone_odometry
@@ -14,6 +18,9 @@ class DronePositionLocal:
     def create(
         cls, north: float, east: float, down: float
     ) -> "tuple[bool, DronePositionLocal | None]":
+        """
+        Local position (NED)
+        """
         return True, DronePositionLocal(cls.__create_key, north, east, down)
 
     def __init__(self, create_key: object, north: float, east: float, down: float) -> None:
@@ -40,6 +47,9 @@ class DroneOdometryLocal:
     def create(
         cls, local_position: DronePositionLocal, drone_orientation: drone_odometry.DroneOrientation
     ) -> "tuple[bool, DroneOdometryLocal | None]":
+        """
+        Combines local odometry data with timestamp
+        """
 
         if local_position is None:
             return False, None
