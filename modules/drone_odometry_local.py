@@ -27,7 +27,7 @@ class DronePositionLocal:
         """
         Private constructor, use create() method.
         """
-        
+
         assert create_key is DronePositionLocal.__create_key, "Use create() method"
 
         self.north = north
