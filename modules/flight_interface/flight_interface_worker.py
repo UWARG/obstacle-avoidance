@@ -12,7 +12,7 @@ def flight_interface_worker(
     output_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
 ) -> None:
-    """ 
+    """
     Worker process.
 
     address, timeout is initial setting.
