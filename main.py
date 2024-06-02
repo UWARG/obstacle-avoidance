@@ -7,7 +7,11 @@ import queue
 
 from worker import worker_controller
 from worker import queue_wrapper
+from worker import worker_controller
+from worker import queue_wrapper
 
+from modules import drone_odometry_local
+from modules.flight_interface import flight_interface_worker
 from modules import drone_odometry_local
 from modules.flight_interface import flight_interface_worker
 
