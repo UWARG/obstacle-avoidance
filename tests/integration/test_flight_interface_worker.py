@@ -1,5 +1,5 @@
 """
-Flight interface worker integration test
+Flight interface worker integration test.
 """
 
 import multiprocessing as mp
@@ -20,7 +20,7 @@ FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
 
 def main() -> int:
     """
-    Main function
+    Main function.
     """
 
     controller = worker_controller.WorkerController()

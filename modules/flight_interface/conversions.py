@@ -1,3 +1,7 @@
+"""
+Drone position conversions to and from local (NED) and global (geodetic) space.
+"""
+
 import pymap3d as pymap
 
 from .. import drone_odometry_local
@@ -8,7 +12,7 @@ def position_global_to_local(
     global_position: drone_odometry.DronePosition, home_location: drone_odometry.DronePosition
 ) -> "tuple[bool, drone_odometry_local.DronePositionLocal | None]":
     """
-    Converts global position (geodetic) to local position (NED)
+    Converts global position (geodetic) to local position (NED).
     """
     north, east, down = pymap.geodetic2ned(
         global_position.latitude,
@@ -31,7 +35,7 @@ def position_local_to_global(
     home_location: drone_odometry.DronePosition,
 ) -> "tuple[bool, drone_odometry.DronePosition | None]":
     """
-    Converts local position (NED) to global position (geodetic)
+    Converts local position (NED) to global position (geodetic).
     """
     latitude, longitude, altitude = pymap.ned2geodetic(
         local_position.north,
