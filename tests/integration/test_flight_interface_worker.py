@@ -63,8 +63,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    main_result = main()
-    if main_result < 0:
-        print("error: " + main_result)
+    result_main = main()
+    if result_main < 0:
+        print("error: " + result_main)
 
     print("Done.")
