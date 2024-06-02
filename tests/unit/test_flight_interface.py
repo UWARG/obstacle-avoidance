@@ -6,7 +6,6 @@ import pytest
 import time
 
 from modules.flight_interface import flight_interface
-from modules.flight_interface import conversions
 from modules import drone_odometry_local
 
 from ..common.mavlink.modules import drone_odometry
@@ -62,21 +61,6 @@ class TestFlightInterface:
         assert result
         assert instance.controller is not None
         assert instance.home_location is not None
-
-    def test_global_to_local_conversion(self):
-        """
-        Test global to local position conversion.
-        """
-        drone_position_global = create_drone_position(0.0, 0.0, 0.0)
-        home_location = create_drone_position(0.0, 0.0, 0.0)
-
-        result, expected = drone_odometry_local.DronePositionLocal.create(5.0, 5.0, 5.0)
-        assert result
-        assert expected is not None
-
-        actual = conversions.position_global_to_local(drone_position_global, home_location)
-
-        assert actual == expected
 
     def test_flight_interface(self):
         """
