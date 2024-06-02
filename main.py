@@ -5,11 +5,11 @@ Main
 import multiprocessing as mp
 import queue
 
-from .worker import worker_controller
-from .worker import queue_wrapper
+from worker import worker_controller
+from worker import queue_wrapper
 
-from ..modules import drone_odometry_local
-from .modules.flight_interface import flight_interface_worker
+from modules import drone_odometry_local
+from modules.flight_interface import flight_interface_worker
 
 
 def main() -> int:
@@ -17,10 +17,13 @@ def main() -> int:
     Main function
     """
 
+    # Local constants
+    # pylint: disable=invalid-name
     QUEUE_MAX_SIZE = 10
     FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
     FLIGHT_INTERFACE_TIMEOUT = 10
     FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
+    # pylint: enable=invalid-name
 
     controller = worker_controller.WorkerController()
     manager = mp.Manager()
@@ -62,9 +65,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    main_result = main()
-    if main_result < 0:
-        print("error: " + main_result)
-    print(main_result)
+    result_main = main()
+    if result_main < 0:
+        print("error: " + result_main)
+    print(result_main)
 
     print("Done.")
