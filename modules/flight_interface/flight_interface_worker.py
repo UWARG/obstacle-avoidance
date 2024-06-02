@@ -1,3 +1,7 @@
+"""
+Fetches local drone odometry.
+"""
+
 import time
 
 from . import flight_interface

@@ -1,3 +1,7 @@
+"""
+Creates flight controller and produces local drone odometry coupled with a timestamp.
+"""
+
 from . import conversions
 from .. import drone_odometry_local
 
@@ -7,7 +11,7 @@ from ..common.mavlink.modules import flight_controller
 
 class FlightInterface:
     """
-    Create flight controller and sets home location
+    Create flight controller and sets home location.
     """
 
     __create_key = object()
@@ -45,7 +49,7 @@ class FlightInterface:
 
     def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
-        Returns local drone odometry with timestamp
+        Returns local drone odometry with timestamp.
         """
         result, odometry = self.controller.get_odometry()
         if not result:
