@@ -12,7 +12,9 @@ from ..common.mavlink.modules import drone_odometry
 
 
 @pytest.fixture()
-def create_flight_interface_instance(address, timeout):
+def create_flight_interface_instance(
+    address: str, timeout: float
+) -> "tuple[bool, FlightInterface | None]":
     """
     Construct a flight interface instance.
     """
@@ -22,7 +24,9 @@ def create_flight_interface_instance(address, timeout):
 
 
 @pytest.fixture()
-def create_drone_position(latitude, longitude, altitude):
+def create_drone_position(
+    latitude: float, longitude: float, altitude: float
+) -> drone_odometry.DronePosition:
     """
     Contruct a drone position instance.
     """
@@ -43,7 +47,7 @@ class TestFlightInterface:
 
     DELAY_TIME = 1.0
 
-    def test_create_invalid_address(self):
+    def test_create_invalid_address(self) -> None:
         """
         Test create method using a valid Mission Planner IP address.
         """
@@ -51,7 +55,7 @@ class TestFlightInterface:
         assert not result
         assert instance is None
 
-    def test_create_valid_address(self):
+    def test_create_valid_address(self) -> None:
         """
         Test create method using a valid Mission Planner IP address.
         """
@@ -62,7 +66,7 @@ class TestFlightInterface:
         assert instance.controller is not None
         assert instance.home_location is not None
 
-    def test_flight_interface(self):
+    def test_flight_interface(self) -> None:
         """
         Tests run function and prints results.
         """
