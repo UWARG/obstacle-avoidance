@@ -1,5 +1,5 @@
 """
-Worker Queue
+Worker Queue.
 """
 
 import multiprocessing.managers
@@ -21,7 +21,7 @@ class QueueWrapper:
 
     def fill_queue_with_sentinel(self, timeout: float = 0.0) -> None:
         """
-        Fills the queue with sentinel (None)
+        Fills the queue with sentinel (None).
         """
         if timeout <= 0.0:
             timeout = self.__QUEUE_TIMEOUT
@@ -35,19 +35,21 @@ class QueueWrapper:
 
     def drain_queue(self, timeout: float = 0.0) -> None:
         """
-        Drains the queue
+        Drains the queue.
         """
         if timeout <= 0.0:
             timeout = self.__QUEUE_TIMEOUT
 
         try:
             self.queue.get(timeout=timeout)
+            for _ in range(1, self.max_size):
+                self.queue.get(timeout=timeout)
         except queue.Empty:
             return
 
     def fill_and_drain_queue(self) -> None:
         """
-        Fills the queue with sentinel and then drains it
+        Fills the queue with sentinel and then drains it.
         """
         self.fill_queue_with_sentinel()
         time.sleep(self.__QUEUE_DELAY)
