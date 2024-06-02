@@ -2,11 +2,11 @@
 Test for flight interface by printing to device.
 """
 
-import pytest
 import time
+import pytest
+
 
 from modules.flight_interface import flight_interface
-from modules import drone_odometry_local
 
 from ..common.mavlink.modules import drone_odometry
 
