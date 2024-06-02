@@ -16,7 +16,6 @@ def main() -> int:
     """
     Main function
     """
-
     # Local constants
     # pylint: disable=invalid-name
     QUEUE_MAX_SIZE = 10
