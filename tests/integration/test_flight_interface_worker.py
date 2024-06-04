@@ -28,15 +28,16 @@ def main() -> int:
 
     output_queue = queue_wrapper.QueueWrapper(manager, QUEUE_MAX_SIZE)
 
-    args = (
-        FLIGHT_INTERFACE_ADDRESS,
-        FLIGHT_INTERFACE_TIMEOUT,
-        FLIGHT_INTERFACE_WORKER_PERIOD,
-        output_queue,
-        controller,
+    worker = mp.Process(
+        target=flight_interface_worker,
+        args=(
+            FLIGHT_INTERFACE_ADDRESS,
+            FLIGHT_INTERFACE_TIMEOUT,
+            FLIGHT_INTERFACE_WORKER_PERIOD,
+            output_queue,
+            controller,
+        ),
     )
-
-    worker = mp.Process(target=flight_interface_worker, args=args)
 
     worker.start()
 
@@ -52,6 +53,16 @@ def main() -> int:
             )
             assert input_data.local_position is not None
             assert input_data.drone_orientation is not None
+
+            print("north: " + str(input_data.local_position.north))
+            print("east: " + str(input_data.local_position.east))
+            print("down: " + str(input_data.local_position.down))
+            print("roll: " + str(input_data.drone_orientation.roll))
+            print("pitch: " + str(input_data.drone_orientation.pitch))
+            print("yaw: " + str(input_data.drone_orientation.yaw))
+            print("timestamp: " + str(input_data.timestamp))
+            print("")
+
         except queue.Empty:
             break
 
