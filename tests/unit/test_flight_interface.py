@@ -5,9 +5,7 @@ Test for flight interface by printing to device.
 import time
 import pytest
 
-
 from modules.flight_interface import flight_interface
-
 from ..common.mavlink.modules import drone_odometry
 
 
@@ -30,8 +28,9 @@ def create_drone_position(
     """
     Contruct a drone position instance.
     """
-    result, global_position = drone_odometry.DronePosition.create(latitude, longitude, altitude)
-    assert result
+    expected = True
+    actual, global_position = drone_odometry.DronePosition.create(latitude, longitude, altitude)
+    assert actual == expected
     assert global_position is not None
 
     yield global_position
@@ -51,42 +50,39 @@ class TestFlightInterface:
         """
         Test create method using a valid Mission Planner IP address.
         """
-        result, instance = create_flight_interface_instance(None, self.TIMEOUT)
-        assert not result
-        assert instance is None
+        expected_result = False
+        expected_instance = None
+        actual_result, actual_instance = create_flight_interface_instance(None, self.TIMEOUT)
+        assert actual_result == expected_result
+        assert actual_instance == expected_instance
 
     def test_create_valid_address(self) -> None:
         """
         Test create method using a valid Mission Planner IP address.
         """
-        result, instance = create_flight_interface_instance(
+        expected = True
+        actual, instance = create_flight_interface_instance(
             self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
         )
-        assert result
+        assert actual == expected
         assert instance.controller is not None
         assert instance.home_location is not None
 
-    def test_flight_interface(self) -> None:
-        """
-        Tests run function and prints results.
-        """
 
-        result, flight_interface_instance = create_flight_interface_instance(
-            self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
-        )
+def test_flight_interface(self) -> None:
+    """
+    Tests run function and prints results.
+    """
+    expected_result = True
+    actual_result, flight_interface_instance = create_flight_interface_instance(
+        self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
+    )
 
-        for _ in range(8):
-            result, local_odometry = flight_interface_instance.run()
-            assert result
-            assert local_odometry is not None
+    assert actual_result == expected_result
 
-            print("north: " + str(local_odometry.local_position.north))
-            print("east: " + str(local_odometry.local_position.east))
-            print("down: " + str(local_odometry.local_position.down))
-            print("roll: " + str(local_odometry.drone_orientation.roll))
-            print("pitch: " + str(local_odometry.drone_orientation.pitch))
-            print("yaw: " + str(local_odometry.drone_orientation.yaw))
-            print("timestamp: " + str(local_odometry.timestamp))
-            print("")
+    for _ in range(8):
+        actual_result, local_odometry = flight_interface_instance.run()
+        assert actual_result == expected_result
+        assert local_odometry is not None
 
-            time.sleep(self.DELAY_TIME)
+        time.sleep(self.DELAY_TIME)
