@@ -36,7 +36,7 @@ class FlightInterface:
         self,
         create_key: object,
         controller: flight_controller.FlightController,
-        home_location: drone_odometry.DroneLocation,
+        home_location: drone_odometry.DronePosition,
     ) -> None:
         """
         Private constructor, use create() method.
