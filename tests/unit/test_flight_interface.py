@@ -5,8 +5,8 @@ Test for flight interface by printing to device.
 import time
 import pytest
 
+from common.mavlink.modules import drone_odometry
 from modules.flight_interface import flight_interface
-from ..common.mavlink.modules import drone_odometry
 
 
 @pytest.fixture()
