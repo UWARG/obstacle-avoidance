@@ -27,8 +27,7 @@ class QueueWrapper:
             timeout = self.__QUEUE_TIMEOUT
 
         try:
-            self.queue.put(None, timeout=timeout)
-            for _ in range(1, self.max_size):
+            for _ in range(0, self.max_size):
                 self.queue.put(None, timeout=timeout)
         except queue.Full:
             return
@@ -41,8 +40,7 @@ class QueueWrapper:
             timeout = self.__QUEUE_TIMEOUT
 
         try:
-            self.queue.get(timeout=timeout)
-            for _ in range(1, self.max_size):
+            for _ in range(0, self.max_size):
                 self.queue.get(timeout=timeout)
         except queue.Empty:
             return
