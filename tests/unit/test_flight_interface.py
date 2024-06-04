@@ -3,13 +3,11 @@ Test for flight interface by printing to device.
 """
 
 import time
-import pytest
 
-from common.mavlink.modules import drone_odometry
+from modules.common.mavlink.modules import drone_odometry
 from modules.flight_interface import flight_interface
 
 
-@pytest.fixture()
 def create_flight_interface_instance(
     address: str, timeout: float
 ) -> "tuple[bool, FlightInterface | None]":
@@ -18,10 +16,9 @@ def create_flight_interface_instance(
     """
     result, flight_interface_instance = flight_interface.FlightInterface.create(address, timeout)
 
-    yield result, flight_interface_instance
+    return result, flight_interface_instance
 
 
-@pytest.fixture()
 def create_drone_position(
     latitude: float, longitude: float, altitude: float
 ) -> drone_odometry.DronePosition:
@@ -33,7 +30,7 @@ def create_drone_position(
     assert actual == expected
     assert global_position is not None
 
-    yield global_position
+    return global_position
 
 
 class TestFlightInterface:
@@ -52,7 +49,7 @@ class TestFlightInterface:
         """
         expected_result = False
         expected_instance = None
-        actual_result, actual_instance = create_flight_interface_instance(None, self.TIMEOUT)
+        actual_result, actual_instance = create_flight_interface_instance("", self.TIMEOUT)
         assert actual_result == expected_result
         assert actual_instance == expected_instance
 
