@@ -68,7 +68,6 @@ class TestFlightInterface:
         assert instance.controller is not None
         assert instance.home_location is not None
 
-
     def test_flight_interface(self) -> None:
         """
         Tests run function and prints results.
