@@ -69,20 +69,20 @@ class TestFlightInterface:
         assert instance.home_location is not None
 
 
-def test_flight_interface(self) -> None:
-    """
-    Tests run function and prints results.
-    """
-    expected_result = True
-    actual_result, flight_interface_instance = create_flight_interface_instance(
-        self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
-    )
+    def test_flight_interface(self) -> None:
+        """
+        Tests run function and prints results.
+        """
+        expected_result = True
+        actual_result, flight_interface_instance = create_flight_interface_instance(
+            self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
+        )
 
-    assert actual_result == expected_result
-
-    for _ in range(8):
-        actual_result, local_odometry = flight_interface_instance.run()
         assert actual_result == expected_result
-        assert local_odometry is not None
 
-        time.sleep(self.DELAY_TIME)
+        for _ in range(8):
+            actual_result, local_odometry = flight_interface_instance.run()
+            assert actual_result == expected_result
+            assert local_odometry is not None
+
+            time.sleep(self.DELAY_TIME)
