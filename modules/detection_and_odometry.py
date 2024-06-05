@@ -12,12 +12,20 @@ class LidarDetection:
 
     __create_key = object()
 
+    __DISTANCE_LIMIT = 50
+    __ANGLE_LIMIT = 160
+
     @classmethod
     def create(cls, distance: float, angle: float) -> "tuple[bool, LidarDetection | None]":
         """
         Distance is in meters.
         Angle is in degrees.
         """
+        if distance < 0 or distance > cls.__DISTANCE_LIMIT:
+            return False, None
+
+        if abs(angle) > cls.__ANGLE_LIMIT:
+            return False, None
 
         return True, LidarDetection(cls.__create_key, distance, angle)
 
@@ -53,6 +61,12 @@ class DetectionAndOdometry:
         """
         Combines lidar reading with local odometry
         """
+
+        if lidar_detection is None:
+            return False, None
+
+        if local_odometry is None:
+            return False, None
 
         return True, DetectionAndOdometry(cls.__create_key, lidar_detection, local_odometry)
 
