@@ -4,9 +4,10 @@ Fetches local drone odometry.
 
 import time
 
-from . import flight_interface
 from worker import queue_wrapper
 from worker import worker_controller
+
+from . import flight_interface
 
 
 def flight_interface_worker(
