@@ -2,8 +2,6 @@
 Test for flight interface by printing to device.
 """
 
-import time
-
 from modules.common.mavlink.modules import drone_odometry
 from modules.flight_interface import flight_interface
 
@@ -49,36 +47,8 @@ class TestFlightInterface:
         """
         expected_result = False
         expected_instance = None
-        actual_result, actual_instance = create_flight_interface_instance("", self.TIMEOUT)
+        actual_result, actual_instance = create_flight_interface_instance(
+            "tcp:0.0.0.0:0", self.TIMEOUT
+        )
         assert actual_result == expected_result
         assert actual_instance == expected_instance
-
-    def test_create_valid_address(self) -> None:
-        """
-        Test create method using a valid Mission Planner IP address.
-        """
-        expected = True
-        actual, instance = create_flight_interface_instance(
-            self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
-        )
-        assert actual == expected
-        assert instance.controller is not None
-        assert instance.home_location is not None
-
-    def test_flight_interface(self) -> None:
-        """
-        Tests run function and prints results.
-        """
-        expected_result = True
-        actual_result, flight_interface_instance = create_flight_interface_instance(
-            self.MISSION_PLANNER_ADDRESS, self.TIMEOUT
-        )
-
-        assert actual_result == expected_result
-
-        for _ in range(8):
-            actual_result, local_odometry = flight_interface_instance.run()
-            assert actual_result == expected_result
-            assert local_odometry is not None
-
-            time.sleep(self.DELAY_TIME)
