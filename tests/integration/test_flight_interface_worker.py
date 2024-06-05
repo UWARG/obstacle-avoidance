@@ -12,6 +12,7 @@ from worker import queue_wrapper
 from modules import drone_odometry_local
 from modules.flight_interface import flight_interface_worker
 
+# Constants
 QUEUE_MAX_SIZE = 10
 FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
 FLIGHT_INTERFACE_TIMEOUT = 10
@@ -29,7 +30,7 @@ def main() -> int:
     output_queue = queue_wrapper.QueueWrapper(manager, QUEUE_MAX_SIZE)
 
     worker = mp.Process(
-        target=flight_interface_worker,
+        target=flight_interface_worker.flight_interface_worker,
         args=(
             FLIGHT_INTERFACE_ADDRESS,
             FLIGHT_INTERFACE_TIMEOUT,
@@ -45,11 +46,9 @@ def main() -> int:
 
     while True:
         try:
-            input_data: drone_odometry_local.DroneOdometryLocal = output_queue.queue.get()
+            input_data: drone_odometry_local.DroneOdometryLocal = output_queue.queue.get_nowait()
             assert (
-                str(type(input_data))
-                == "<class 'modules.drone_odometry_local\
-                    .DroneOdometryLocal'>"
+                str(type(input_data)) == "<class 'modules.drone_odometry_local.DroneOdometryLocal'>"
             )
             assert input_data.local_position is not None
             assert input_data.drone_orientation is not None
@@ -76,6 +75,6 @@ def main() -> int:
 if __name__ == "__main__":
     result_main = main()
     if result_main < 0:
-        print("error: " + result_main)
+        print(f"Error: Status Code: {result_main}")
 
     print("Done.")

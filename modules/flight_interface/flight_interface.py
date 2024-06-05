@@ -57,7 +57,7 @@ class FlightInterface:
 
         global_position = odometry.position
 
-        result, local_position = conversions.global_to_local(global_position, self.home_location)
+        result, local_position = conversions.position_global_to_local(global_position, self.home_location)
         if not result:
             return False, None
 
