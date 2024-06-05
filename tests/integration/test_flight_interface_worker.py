@@ -15,7 +15,7 @@ from modules.flight_interface import flight_interface_worker
 # Constants
 QUEUE_MAX_SIZE = 10
 FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
-FLIGHT_INTERFACE_TIMEOUT = 10
+FLIGHT_INTERFACE_TIMEOUT = 10.0
 FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
 
 
