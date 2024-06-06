@@ -56,7 +56,6 @@ class DroneOdometryLocal:
         """
         Combines local odometry data with timestamp
         """
-
         if local_position is None:
             return False, None
 
@@ -82,6 +81,7 @@ class DroneOdometryLocal:
 
         assert create_key is DroneOdometryLocal.__create_key, "Use create() method"
 
+        self.local_position = local_position
         self.local_position = local_position
         self.drone_orientation = drone_orientation
         self.timestamp = timestamp
