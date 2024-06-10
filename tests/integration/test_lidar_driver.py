@@ -22,7 +22,8 @@ def output_scan(lidar, duration):
     while time.time() < t_end:
         distance, angle = lidar.wait_for_reading(lidar.serial_port)
 
-        assert distance != -1
+        if distance == -1:
+            continue
 
         print(f"{distance} m {angle} deg")
 

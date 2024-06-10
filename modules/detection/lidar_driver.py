@@ -271,11 +271,17 @@ class LidarDriver:
         distance_in_cm = response[4] << 0 | response[5] << 8
         distance_in_metres = distance_in_cm / 100.0
 
+        if distance_in_metres < 0 or distance_in_metres > 50:
+            return -1, 0
+
         yaw_angle = response[6] << 0 | response[7] << 8
         if yaw_angle > 32000:
             yaw_angle = yaw_angle - 65535
 
         yaw_angle /= 100.0
+
+        if yaw_angle <= self.MIN_LOW_ANGLE or yaw_angle >= self.MAX_HIGH_ANGLE:
+            return -1, 0
 
         return distance_in_metres, yaw_angle
 
