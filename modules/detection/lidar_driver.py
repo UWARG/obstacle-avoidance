@@ -17,11 +17,11 @@ class LidarDriver:
     MIN_UPDATE_RATE = 1
     MAX_UPDATE_RATE = 12
 
-    MAX_ANGLE = 170
-    MIN_MAX_ANGLE = 5
+    MAX_HIGH_ANGLE = 170
+    MIN_HIGH_ANGLE = 5
 
-    MIN_ANGLE = -170
-    MAX_MIN_ANGLE = -5
+    MIN_LOW_ANGLE = -170
+    MAX_LOW_ANGLE = -5
 
     MAX_SPEED = 5
     MIN_SPEED = 2000
@@ -52,18 +52,13 @@ class LidarDriver:
         self._packet_size = 0
         self._packet_data = []
 
-    def __build_packet(self, command, write, data=None):
+    @staticmethod
+    def __create_crc(data):
         """
-        Create raw bytes for a packet.
+        Create a CRC-16-CCITT 0x1021 hash of the specified data.
         """
-        if data is None:
-            data = []
-
-        payload_length = 1 + len(data)
-        flags = (payload_length << 6) | (write & 0x1)
-        packet_bytes = [0xAA, flags & 0xFF, (flags >> 8) & 0xFF, command]
-        packet_bytes.extend(data)
         crc = 0
+
         for i in data:
             code = crc >> 8
             code ^= int(i)
@@ -75,6 +70,21 @@ class LidarDriver:
             code = code << 7
             crc ^= code
             crc &= 0xFFFF
+
+        return crc
+
+    def __build_packet(self, command, write, data=None):
+        """
+        Create raw bytes for a packet.
+        """
+        if data is None:
+            data = []
+
+        payload_length = 1 + len(data)
+        flags = (payload_length << 6) | (write & 0x1)
+        packet_bytes = [0xAA, flags & 0xFF, (flags >> 8) & 0xFF, command]
+        packet_bytes.extend(data)
+        crc = self.__create_crc(packet_bytes)
         packet_bytes.append(crc & 0xFF)
         packet_bytes.append((crc >> 8) & 0xFF)
 
@@ -113,7 +123,7 @@ class LidarDriver:
                 crc = self._packet_data[self._packet_size - 2] | (
                     self._packet_data[self._packet_size - 1] << 8
                 )
-                verify_crc = self._create_crc(self._packet_data[0:-2])
+                verify_crc = self.__create_crc(self._packet_data[0:-2])
 
                 if crc == verify_crc:
                     return True
@@ -290,7 +300,7 @@ class LidarDriver:
         Set minimum angle.
         Value must be between -170 and -5 inclusive.
         """
-        if value < self.MIN_ANGLE or value > self.MAX_MIN_ANGLE:
+        if value < self.MIN_LOW_ANGLE or value > self.MAX_LOW_ANGLE:
             return False
 
         self.__execute_command(port, self.LOW_ANGLE, self.WRITE, list(struct.pack("<f", value)))
@@ -301,7 +311,7 @@ class LidarDriver:
         Set maximum angle.
         Value must be between 5 and 170 inclusive.
         """
-        if value < self.MIN_MAX_ANGLE or value > self.MAX_ANGLE:
+        if value < self.MIN_HIGH_ANGLE or value > self.MAX_HIGH_ANGLE:
             return False
 
         self.__execute_command(port, self.HIGH_ANGLE, self.WRITE, list(struct.pack("<f", value)))
