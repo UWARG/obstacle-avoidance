@@ -11,6 +11,10 @@ def detection_worker(
     serial_port_name: str,
     serial_port_baudrate: int,
     port_timeout: float,
+    update_rate: int,
+    high_angle: float,
+    low_angle: float,
+    rotate_speed: int,
     input_queue: queue_wrapper.QueueWrapper,
     output_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
@@ -18,7 +22,15 @@ def detection_worker(
     """
     Worker process.
     """
-    detector = detection.Detection(serial_port_name, serial_port_baudrate, port_timeout)
+    detector = detection.Detection(
+        serial_port_name,
+        serial_port_baudrate,
+        port_timeout,
+        update_rate,
+        high_angle,
+        low_angle,
+        rotate_speed,
+    )
 
     while not controller.is_exit_requested():
         controller.check_pause()
