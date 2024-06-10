@@ -45,6 +45,10 @@ class Detection:
         self.lidar.set_high_angle(self.lidar.serial_port, self.high_angle)
         self.lidar.set_speed(self.lidar.serial_port, self.speed)
 
+        # start streaming
+        self.lidar.set_default_distance_output(self.lidar.serial_port)
+        self.lidar.set_distance_stream_enable(self.lidar.serial_port, True)
+
     def run(
         self, odometry: drone_odometry_local.DroneOdometryLocal
     ) -> "tuple[bool, detection_and_odometry.DetectionAndOdometry | None]":
