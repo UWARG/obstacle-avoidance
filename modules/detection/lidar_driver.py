@@ -1,7 +1,6 @@
 """
 Lightware SF45/B Driver
 Lidar documentation: https://support.lightware.co.za/sf45b/#/commands
-TODO: testing
 """
 
 import time
