@@ -16,11 +16,11 @@ class LidarDriver:
     MIN_UPDATE_RATE = 1
     MAX_UPDATE_RATE = 12
 
-    MAX_HIGH_ANGLE = 170
-    MIN_HIGH_ANGLE = 5
+    MAX_HIGH_ANGLE = 170  # degrees
+    MIN_HIGH_ANGLE = 5  # degrees
 
-    MIN_LOW_ANGLE = -170
-    MAX_LOW_ANGLE = -5
+    MIN_LOW_ANGLE = -170  # degrees
+    MAX_LOW_ANGLE = -5  # degrees
 
     MAX_SPEED = 5
     MIN_SPEED = 2000
