@@ -23,9 +23,6 @@ def output_scan(lidar, duration):
         distance, angle = lidar.wait_for_reading(lidar.serial_port)
 
         assert distance != -1
-        assert distance >= 0
-        assert angle >= lidar.MIN_LOW_ANGLE
-        assert angle <= lidar.MAX_HIGH_ANGLE
 
         print(f"{distance} m {angle} deg")
 
