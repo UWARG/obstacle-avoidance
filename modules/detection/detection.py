@@ -54,5 +54,7 @@ class Detection:
         """
 
         distance, angle = self.lidar.wait_for_reading(self.lidar.serial_port)
+        if distance == -1:
+            return False, None
 
         return lidar_detection.LidarDetection.create(distance, angle)
