@@ -63,16 +63,10 @@ class LidarDriver:
     @staticmethod
     def __create_crc(data: "list[int]") -> int:
         """
-        Create raw bytes for a packet.
+        Create a CRC-16-CCITT 0x1021 hash of the specified data.
         """
-        if data is None:
-            data = []
-
-        payload_length = 1 + len(data)
-        flags = (payload_length << 6) | (write & 0x1)
-        packet_bytes = [0xAA, flags & 0xFF, (flags >> 8) & 0xFF, command]
-        packet_bytes.extend(data)
         crc = 0
+
         for i in data:
             code = crc >> 8
             code ^= int(i)
