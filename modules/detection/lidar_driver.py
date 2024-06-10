@@ -63,10 +63,16 @@ class LidarDriver:
     @staticmethod
     def __create_crc(data: "list[int]") -> int:
         """
-        Create a CRC-16-CCITT 0x1021 hash of the specified data.
+        Create raw bytes for a packet.
         """
-        crc = 0
+        if data is None:
+            data = []
 
+        payload_length = 1 + len(data)
+        flags = (payload_length << 6) | (write & 0x1)
+        packet_bytes = [0xAA, flags & 0xFF, (flags >> 8) & 0xFF, command]
+        packet_bytes.extend(data)
+        crc = 0
         for i in data:
             code = crc >> 8
             code ^= int(i)
@@ -291,6 +297,8 @@ class LidarDriver:
         """
         Enable and disable streaming from the lidar.
         """
+        enable_data = [5, 0, 0, 0]
+        disable_data = [0, 0, 0, 0]
         if enable is True:
             result, _ = self.__execute_command(
                 port, self.__STREAM, self.__WRITE, self.__ENABLE_STREAMING_DATA
