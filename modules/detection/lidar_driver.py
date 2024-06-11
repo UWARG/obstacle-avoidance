@@ -39,7 +39,13 @@ class LidarDriver:
     LOW_ANGLE = 98
     HIGH_ANGLE = 99
 
-    def __init__(self, port_name, baudrate, timeout):
+    USE_LAST_RETURN_DATA = [1, 1, 0, 0]
+    USE_FIRST_RETURN_DATA = [8, 1, 0, 0]
+
+    ENABLE_STREAMING_DATA = [5, 0, 0, 0]
+    DISABLE_STREAMING_DATA = [0, 0, 0, 0]
+
+    def __init__(self, port_name: str, baudrate: int, timeout: float) -> None:
         """
         port_name: port that the lidar is connected to
         baudrate: baudrate of the lidar port
@@ -52,7 +58,7 @@ class LidarDriver:
         self._packet_data = []
 
     @staticmethod
-    def __create_crc(data):
+    def __create_crc(data: "list[int]") -> int:
         """
         Create a CRC-16-CCITT 0x1021 hash of the specified data.
         """
@@ -72,7 +78,7 @@ class LidarDriver:
 
         return crc
 
-    def __build_packet(self, command, write, data=None):
+    def __build_packet(self, command: int, write: int, data: "list[int]" = None) -> bytearray:
         """
         Create raw bytes for a packet.
         """
@@ -89,7 +95,7 @@ class LidarDriver:
 
         return bytearray(packet_bytes)
 
-    def __parse_packet(self, byte):
+    def __parse_packet(self, byte: int) -> bool:
         """
         Check for packet in byte stream.
         """
@@ -98,11 +104,15 @@ class LidarDriver:
                 self._packet_parse_state = 1
                 self._packet_data = [0xAA]
 
-        elif self._packet_parse_state == 1:
+            return False
+
+        if self._packet_parse_state == 1:
             self._packet_parse_state = 2
             self._packet_data.append(byte)
 
-        elif self._packet_parse_state == 2:
+            return False
+
+        if self._packet_parse_state == 2:
             self._packet_parse_state = 3
             self._packet_data.append(byte)
             self._packet_payload_size = (self._packet_data[1] | (self._packet_data[2] << 8)) >> 6
@@ -112,7 +122,9 @@ class LidarDriver:
             if self._packet_payload_size > 1019:
                 self._packet_parse_state = 0
 
-        elif self._packet_parse_state == 3:
+            return False
+
+        if self._packet_parse_state == 3:
             self._packet_data.append(byte)
             self._packet_size += 1
             self._packet_payload_size -= 1
@@ -127,9 +139,11 @@ class LidarDriver:
                 if crc == verify_crc:
                     return True
 
+            return False
+
         return False
 
-    def __wait_for_packet(self, port, command, timeout=1):
+    def __wait_for_packet(self, port: serial.Serial, command: int, timeout: float = 1) -> "list[int]":
         """
         Wait (up to timeout) for a packet of the specified command to be received.
         """
@@ -150,7 +164,15 @@ class LidarDriver:
                         return self._packet_data
         return
 
-    def __execute_command(self, port, command, write, data=None, timeout=1, retries=4):
+    def __execute_command(
+        self,
+        port: serial.Serial,
+        command: int,
+        write: int,
+        data: "list[int]" = None,
+        timeout: float = 1,
+        retries: int = 4,
+    ) -> "tuple[bool, list[int]]":
         """
         Send a request packet and wait (up to timeout) for a response.
         """
@@ -170,7 +192,7 @@ class LidarDriver:
         return False, None
 
     @staticmethod
-    def get_str16_from_packet(packet):
+    def get_str16_from_packet(packet: "list[int]") -> str:
         """
         Extract a 16 byte string from a string packet.
         """
@@ -182,7 +204,7 @@ class LidarDriver:
 
         return str16
 
-    def print_product_information(self, port):
+    def print_product_information(self, port: serial.Serial) -> bool:
         """
         Prints product information to console.
         """
@@ -209,7 +231,7 @@ class LidarDriver:
 
         return True
 
-    def set_update_rate(self, port, value):
+    def set_update_rate(self, port: serial.Serial, value: int) -> bool:
         """
         Set the frequency of the lidar.
         Value can be one of:
@@ -230,36 +252,55 @@ class LidarDriver:
         if value < self.MIN_UPDATE_RATE or value > self.MAX_UPDATE_RATE:
             return False
 
-        result, response = self.__execute_command(port, self.UPDATE_RATE, self.WRITE, [value])
+        result, _ = self.__execute_command(port, self.UPDATE_RATE, self.WRITE, [value])
         if not result:
-            return False, None
+            return False
 
-        return True, response
+        return True
 
-    def set_default_distance_output(self, port, use_last_return=False):
+    def set_default_distance_output(self, port: serial.Serial, use_last_return: bool = False):
         """
         Configures the data output when using the 44. Distance data command.
         Each bit toggles the output of specific data.
         """
         if use_last_return is True:
             # Configure output to have 'last return raw' and 'yaw angle'.
-            self.__execute_command(port, self.DISTANCE_OUTPUT, self.WRITE, [1, 1, 0, 0])
-        else:
-            # Configure output to have 'first return raw' and 'yaw angle'.
-            self.__execute_command(port, self.DISTANCE_OUTPUT, self.WRITE, [8, 1, 0, 0])
+            result, _ = self.__execute_command(
+                port, self.DISTANCE_OUTPUT, self.WRITE, self.USE_LAST_RETURN_DATA
+            )
+            if not result:
+                return False
+            return True
 
-    def set_distance_stream_enable(self, port, enable):
+        # Configure output to have 'first return raw' and 'yaw angle'.
+        result, _ = self.__execute_command(
+            port, self.DISTANCE_OUTPUT, self.WRITE, self.USE_FIRST_RETURN_DATA
+        )
+        if not result:
+            return False
+        return True
+
+    def set_distance_stream_enable(self, port: serial.Serial, enable: bool) -> bool:
         """
         Enable and disable streaming from the lidar.
         """
-        enable_data = [5, 0, 0, 0]
-        disable_data = [0, 0, 0, 0]
         if enable is True:
-            self.__execute_command(port, self.STREAM, self.WRITE, enable_data)
-        else:
-            self.__execute_command(port, self.STREAM, self.WRITE, disable_data)
+            result, _ = self.__execute_command(
+                port, self.STREAM, self.WRITE, self.ENABLE_STREAMING_DATA
+            )
+            if not result:
+                return False
+            return True
 
-    def wait_for_reading(self, port, timeout=1):
+        result, _ = self.__execute_command(
+            port, self.STREAM, self.WRITE, self.DISABLE_STREAMING_DATA
+        )
+        if not result:
+            return False
+        return True
+
+    # magic numbers
+    def wait_for_reading(self, port: serial.Serial, timeout: float = 1) -> "tuple[float, float]":
         """
         Gets lidar reading (distance in m and angle).
         """
@@ -285,7 +326,7 @@ class LidarDriver:
 
         return distance_in_metres, yaw_angle
 
-    def set_speed(self, port, value):
+    def set_speed(self, port: serial.Serial, value: int) -> bool:
         """
         Sets spin speed of lidar.
         Value must be between 5 and 2000 (inclusive).
@@ -297,10 +338,14 @@ class LidarDriver:
         low_byte = value & 0xFF
         high_byte = (value >> 8) & 0xFF
 
-        self.__execute_command(port, self.ROTATION_SPEED, self.WRITE, [low_byte, high_byte])
+        result, _ = self.__execute_command(
+            port, self.ROTATION_SPEED, self.WRITE, [low_byte, high_byte]
+        )
+        if not result:
+            return False
         return True
 
-    def set_low_angle(self, port, value):
+    def set_low_angle(self, port: serial.Serial, value: float) -> bool:
         """
         Set minimum angle.
         Value must be between -170 and -5 inclusive.
@@ -308,10 +353,14 @@ class LidarDriver:
         if value < self.MIN_LOW_ANGLE or value > self.MAX_LOW_ANGLE:
             return False
 
-        self.__execute_command(port, self.LOW_ANGLE, self.WRITE, list(struct.pack("<f", value)))
+        result, _ = self.__execute_command(
+            port, self.LOW_ANGLE, self.WRITE, list(struct.pack("<f", value))
+        )
+        if not result:
+            return False
         return True
 
-    def set_high_angle(self, port, value):
+    def set_high_angle(self, port: serial.Serial, value: float) -> bool:
         """
         Set maximum angle.
         Value must be between 5 and 170 inclusive.
@@ -319,5 +368,9 @@ class LidarDriver:
         if value < self.MIN_HIGH_ANGLE or value > self.MAX_HIGH_ANGLE:
             return False
 
-        self.__execute_command(port, self.HIGH_ANGLE, self.WRITE, list(struct.pack("<f", value)))
+        result, _ = self.__execute_command(
+            port, self.HIGH_ANGLE, self.WRITE, list(struct.pack("<f", value))
+        )
+        if not result:
+            return False
         return True
