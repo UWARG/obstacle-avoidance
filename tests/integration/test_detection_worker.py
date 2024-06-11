@@ -52,7 +52,9 @@ def main() -> int:
 
     while True:
         try:
-            input_data: lidar_detection.LidarDetection = detection_out_queue.queue.get_nowait()
+            input_data: lidar_detection.LidarDetection = (
+                detection_out_queue.queue.get_nowait()
+            )
             assert str(type(input_data)) == "<class 'modules.lidar_detection.LidarDetection'>"
 
             assert input_data is not None
