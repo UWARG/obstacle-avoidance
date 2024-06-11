@@ -12,7 +12,7 @@ BAUDRATE = 921600
 TIMEOUT = 0.1
 
 
-def output_scan(lidar, duration):
+def output_scan(lidar: lidar_driver.LidarDriver, duration: float) -> None:
     """
     Output lidar scans for number of reps.
     """
@@ -30,7 +30,7 @@ def output_scan(lidar, duration):
     time.sleep(0.5)
 
 
-def main():
+def main() -> None:
     """
     Conduct tests of lidar driver methods.
     """
