@@ -291,8 +291,6 @@ class LidarDriver:
         """
         Enable and disable streaming from the lidar.
         """
-        enable_data = [5, 0, 0, 0]
-        disable_data = [0, 0, 0, 0]
         if enable is True:
             result, _ = self.__execute_command(
                 port, self.__STREAM, self.__WRITE, self.__ENABLE_STREAMING_DATA
