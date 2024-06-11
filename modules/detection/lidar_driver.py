@@ -263,7 +263,9 @@ class LidarDriver:
 
         return True
 
-    def set_default_distance_output(self, port: serial.Serial, use_last_return: bool = False) -> bool:
+    def set_default_distance_output(
+        self, port: serial.Serial, use_last_return: bool = False
+    ) -> bool:
         """
         Configures the data output when using the 44. Distance data command.
         Each bit toggles the output of specific data.
