@@ -25,25 +25,28 @@ class LidarDriver:
     MAX_SPEED = 5
     MIN_SPEED = 2000
 
-    NO_WRITE = 0
-    WRITE = 1
+    __NO_WRITE = 0
+    __WRITE = 1
 
-    PRODUCT_NAME = 0
-    FIRMWARE_VERSION = 2
-    SERIAL_NUMBER = 3
-    DISTANCE_OUTPUT = 27
-    STREAM = 30
-    DISTANCE = 44
-    UPDATE_RATE = 66
-    ROTATION_SPEED = 85
-    LOW_ANGLE = 98
-    HIGH_ANGLE = 99
+    __PRODUCT_NAME = 0
+    __FIRMWARE_VERSION = 2
+    __SERIAL_NUMBER = 3
+    __DISTANCE_OUTPUT = 27
+    __STREAM = 30
+    __DISTANCE = 44
+    __UPDATE_RATE = 66
+    __ROTATION_SPEED = 85
+    __LOW_ANGLE = 98
+    __HIGH_ANGLE = 99
 
-    USE_LAST_RETURN_DATA = [1, 1, 0, 0]
-    USE_FIRST_RETURN_DATA = [8, 1, 0, 0]
+    __USE_LAST_RETURN_DATA = [1, 1, 0, 0]
+    __USE_FIRST_RETURN_DATA = [8, 1, 0, 0]
 
-    ENABLE_STREAMING_DATA = [5, 0, 0, 0]
-    DISABLE_STREAMING_DATA = [0, 0, 0, 0]
+    __ENABLE_STREAMING_DATA = [5, 0, 0, 0]
+    __DISABLE_STREAMING_DATA = [0, 0, 0, 0]
+
+    __YAW_ANGLE_THRESHOLD = 32000
+    __YAW_ANGLE_OFFSET = 65535
 
     def __init__(self, port_name: str, baudrate: int, timeout: float) -> None:
         """
@@ -211,21 +214,21 @@ class LidarDriver:
         Prints product information to console.
         """
         result, response = self.__execute_command(
-            port, self.PRODUCT_NAME, self.NO_WRITE, timeout=0.1
+            port, self.__PRODUCT_NAME, self.__NO_WRITE, timeout=0.1
         )
         if not result:
             return False
         print("Product: " + self.get_str16_from_packet(response))
 
         result, response = self.__execute_command(
-            port, self.FIRMWARE_VERSION, self.NO_WRITE, timeout=0.1
+            port, self.__FIRMWARE_VERSION, self.__NO_WRITE, timeout=0.1
         )
         if not result:
             return False
         print(f"Firmware: {response[6]}.{response[5]}.{response[4]}")
 
         result, response = self.__execute_command(
-            port, self.SERIAL_NUMBER, self.NO_WRITE, timeout=0.1
+            port, self.__SERIAL_NUMBER, self.__NO_WRITE, timeout=0.1
         )
         if not result:
             return False
@@ -254,7 +257,7 @@ class LidarDriver:
         if value < self.MIN_UPDATE_RATE or value > self.MAX_UPDATE_RATE:
             return False
 
-        result, _ = self.__execute_command(port, self.UPDATE_RATE, self.WRITE, [value])
+        result, _ = self.__execute_command(port, self.__UPDATE_RATE, self.__WRITE, [value])
         if not result:
             return False
 
@@ -268,7 +271,7 @@ class LidarDriver:
         if use_last_return is True:
             # Configure output to have 'last return raw' and 'yaw angle'.
             result, _ = self.__execute_command(
-                port, self.DISTANCE_OUTPUT, self.WRITE, self.USE_LAST_RETURN_DATA
+                port, self.__DISTANCE_OUTPUT, self.__WRITE, self.__USE_LAST_RETURN_DATA
             )
             if not result:
                 return False
@@ -276,7 +279,7 @@ class LidarDriver:
 
         # Configure output to have 'first return raw' and 'yaw angle'.
         result, _ = self.__execute_command(
-            port, self.DISTANCE_OUTPUT, self.WRITE, self.USE_FIRST_RETURN_DATA
+            port, self.__DISTANCE_OUTPUT, self.__WRITE, self.__USE_FIRST_RETURN_DATA
         )
         if not result:
             return False
@@ -288,25 +291,24 @@ class LidarDriver:
         """
         if enable is True:
             result, _ = self.__execute_command(
-                port, self.STREAM, self.WRITE, self.ENABLE_STREAMING_DATA
+                port, self.__STREAM, self.__WRITE, self.__ENABLE_STREAMING_DATA
             )
             if not result:
                 return False
             return True
 
         result, _ = self.__execute_command(
-            port, self.STREAM, self.WRITE, self.DISABLE_STREAMING_DATA
+            port, self.__STREAM, self.__WRITE, self.__DISABLE_STREAMING_DATA
         )
         if not result:
             return False
         return True
 
-    # magic numbers
     def wait_for_reading(self, port: serial.Serial, timeout: float = 1) -> "tuple[float, float]":
         """
         Gets lidar reading (distance in m and angle).
         """
-        response = self.__wait_for_packet(port, self.DISTANCE, timeout)
+        response = self.__wait_for_packet(port, self.__DISTANCE, timeout)
 
         if response is None:
             return -1, 0
@@ -317,11 +319,12 @@ class LidarDriver:
         if distance_in_metres < 0 or distance_in_metres > 50:
             return -1, 0
 
-        yaw_angle = response[6] << 0 | response[7] << 8
-        if yaw_angle > 32000:
-            yaw_angle = yaw_angle - 65535
+        angle_in_hundreth_degrees = response[6] << 0 | response[7] << 8
 
-        yaw_angle /= 100.0
+        yaw_angle = angle_in_hundreth_degrees / 100.0
+        
+        if yaw_angle > self.__YAW_ANGLE_THRESHOLD:
+            yaw_angle = yaw_angle - self.__YAW_ANGLE_OFFSET
 
         if yaw_angle <= self.MIN_LOW_ANGLE or yaw_angle >= self.MAX_HIGH_ANGLE:
             return -1, 0
@@ -341,7 +344,7 @@ class LidarDriver:
         high_byte = (value >> 8) & 0xFF
 
         result, _ = self.__execute_command(
-            port, self.ROTATION_SPEED, self.WRITE, [low_byte, high_byte]
+            port, self.__ROTATION_SPEED, self.__WRITE, [low_byte, high_byte]
         )
         if not result:
             return False
@@ -356,7 +359,7 @@ class LidarDriver:
             return False
 
         result, _ = self.__execute_command(
-            port, self.LOW_ANGLE, self.WRITE, list(struct.pack("<f", value))
+            port, self.__LOW_ANGLE, self.__WRITE, list(struct.pack("<f", value))
         )
         if not result:
             return False
@@ -371,7 +374,7 @@ class LidarDriver:
             return False
 
         result, _ = self.__execute_command(
-            port, self.HIGH_ANGLE, self.WRITE, list(struct.pack("<f", value))
+            port, self.__HIGH_ANGLE, self.__WRITE, list(struct.pack("<f", value))
         )
         if not result:
             return False
