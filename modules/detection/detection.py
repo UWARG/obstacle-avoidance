@@ -2,8 +2,7 @@
 Detects objects using lidar and combines with current odometry
 """
 
-from .. import drone_odometry_local
-from .. import detection_and_odometry
+from .. import lidar_detection
 from . import lidar_driver
 
 
@@ -29,7 +28,7 @@ class Detection:
         update_rate: frequency the lidar reads points (must be integer between 1 and 12 inclusive)
         low_angle: lidar low angle in degrees (must be between -170 and -5 inclusive)
         high_angle: lidar high angle in degrees (must be between 5 and 170 inclusive)
-        speed: lidar rotational speed (must be integer between 5 and 2000 inclusive where 5 is the fastest)
+        rotate_speed: lidar rotational speed (must be integer between 5 and 2000 inclusive where 5 is the fastest)
         """
         self.update_rate = update_rate
         self.low_angle = low_angle
@@ -49,22 +48,11 @@ class Detection:
         self.lidar.set_default_distance_output(self.lidar.serial_port)
         self.lidar.set_distance_stream_enable(self.lidar.serial_port, True)
 
-    def run(
-        self, odometry: drone_odometry_local.DroneOdometryLocal
-    ) -> "tuple[bool, detection_and_odometry.DetectionAndOdometry | None]":
+    def run(self) -> "tuple[bool, lidar_detection.LidarDetection | None]":
         """
-        Returns a possible DetectionAndOdometry.
+        Returns a possible LidarDetection.
         """
-
-        if odometry is None:
-            return False, None
 
         distance, angle = self.lidar.wait_for_reading(self.lidar.serial_port)
-        if distance == -1:
-            return False, None
 
-        result, lidar_detection = detection_and_odometry.LidarDetection.create(distance, angle)
-        if not result:
-            return False, None
-
-        return detection_and_odometry.DetectionAndOdometry.create(lidar_detection, odometry)
+        return lidar_detection.LidarDetection.create(distance, angle)

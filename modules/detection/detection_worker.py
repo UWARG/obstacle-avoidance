@@ -1,5 +1,5 @@
 """
-Gets drone odometry and combines with lidar readings.
+Gets lidar readings.
 """
 
 from worker import queue_wrapper
@@ -12,15 +12,22 @@ def detection_worker(
     serial_port_baudrate: int,
     port_timeout: float,
     update_rate: int,
-    high_angle: float,
     low_angle: float,
+    high_angle: float,
     rotate_speed: int,
-    input_queue: queue_wrapper.QueueWrapper,
     output_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
 ) -> None:
     """
     Worker process.
+
+    serial_port_name: port that the lidar is connected to
+    serial_port_baudrate: baudrate of the lidar port
+    port_timeout: timeout for connecting to serial port
+    update_rate: frequency the lidar reads points (must be integer between 1 and 12 inclusive)
+    low_angle: lidar low angle in degrees (must be between -170 and -5 inclusive)
+    high_angle: lidar high angle in degrees (must be between 5 and 170 inclusive)
+    rotate_speed: lidar rotational speed (must be integer between 5 and 2000 inclusive where 5 is the fastest)
     """
     detector = detection.Detection(
         serial_port_name,
@@ -35,11 +42,7 @@ def detection_worker(
     while not controller.is_exit_requested():
         controller.check_pause()
 
-        input_data = input_queue.queue.get()
-        if input_data is None:
-            break
-
-        result, value = detector.run(input_data)
+        result, value = detector.run()
         if not result:
             continue
 
