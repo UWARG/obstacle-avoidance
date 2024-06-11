@@ -148,7 +148,7 @@ class LidarDriver:
 
     def __wait_for_packet(
         self, port: serial.Serial, command: int, timeout: float = 1
-    ) -> "list[int]":
+    ) -> "list[int] | None":
         """
         Wait (up to timeout) for a packet of the specified command to be received.
         """
@@ -167,7 +167,7 @@ class LidarDriver:
                 if self.__parse_packet(b) is True:
                     if self._packet_data[3] == command:
                         return self._packet_data
-        return
+        return None
 
     def __execute_command(
         self,
