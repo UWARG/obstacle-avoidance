@@ -30,6 +30,9 @@ def data_merge_worker(
         detection: lidar_detection.LidarDetection = detection_input_queue.queue.get_nowait()
         detections.append(detection)
 
+        if detection is None:
+            continue
+
         odometry: drone_odometry_local.DroneOdometryLocal = odometry_input_queue.queue.get_nowait()
 
         if odometry is not None:
