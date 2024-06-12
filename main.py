@@ -78,22 +78,20 @@ def main() -> int:
             flight_interface_data: drone_odometry_local.DroneOdometryLocal = (
                 flight_interface_to_main_queue.queue.get_nowait()
             )
-            assert (
-                str(type(flight_interface_data))
-                == "<class 'modules.drone_odometry_local.DroneOdometryLocal'>"
-            )
-            assert flight_interface_data.local_position is not None
-            assert flight_interface_data.drone_orientation is not None
+
+            if flight_interface_data is not None:
+                print(flight_interface_data)
 
             detection_data: lidar_detection.LidarDetection = (
                 detection_to_main_queue.queue.get_nowait()
             )
-            assert str(type(detection_data)) == "<class 'modules.lidar_detection.LidarDetection'>"
-            assert detection_data is not None
-        except queue.Empty:
-            break
 
-    controller.request_exit()
+            if detection_data is not None:
+                print(detection_data)
+
+        except KeyboardInterrupt:
+            controller.request_exit()
+            break
 
     flight_interface_to_main_queue.fill_and_drain_queue()
     detection_to_main_queue.fill_and_drain_queue()
