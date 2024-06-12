@@ -3,7 +3,6 @@ Main
 """
 
 import multiprocessing as mp
-import queue
 
 from worker import worker_controller
 from worker import queue_wrapper
