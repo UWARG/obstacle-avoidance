@@ -11,9 +11,9 @@ from worker import worker_controller
 from modules import drone_odometry_local
 from modules import lidar_detection
 from modules import detections_and_odometry
+from modules.data_merge import data_merge_worker
 from ..common.mavlink.modules import drone_odometry
 
-from modules.data_merge import data_merge_worker
 
 # Constants
 QUEUE_MAX_SIZE = 10
