@@ -6,7 +6,7 @@ from . import drone_odometry_local
 from . import lidar_detection
 
 
-class DetectionAndOdometry:
+class DetectionsAndOdometry:
     """
     Contains LiDAR readings and current local odometry.
     """
@@ -18,7 +18,7 @@ class DetectionAndOdometry:
         cls,
         detections: "list[lidar_detection.LidarDetection]",
         local_odometry: drone_odometry_local.DroneOdometryLocal,
-    ) -> "tuple[bool, DetectionAndOdometry | None]":
+    ) -> "tuple[bool, DetectionsAndOdometry | None]":
         """
         Combines lidar readings with local odometry
         """
@@ -28,7 +28,7 @@ class DetectionAndOdometry:
         if local_odometry is None:
             return False, None
 
-        return True, DetectionAndOdometry(cls.__create_key, detections, local_odometry)
+        return True, DetectionsAndOdometry(cls.__create_key, detections, local_odometry)
 
     def __init__(
         self,
@@ -39,7 +39,7 @@ class DetectionAndOdometry:
         """
         Private constructor, use create() method.
         """
-        assert create_key is DetectionAndOdometry.__create_key, "Use create() method"
+        assert create_key is DetectionsAndOdometry.__create_key, "Use create() method"
 
         self.detections = detections
         self.odometry = local_odometry
@@ -48,4 +48,5 @@ class DetectionAndOdometry:
         """
         String representation.
         """
-        return f"{self.__class__.__name__}, Detections ({len(self.detections)}): {self.detections}, str{self.odometry}"
+        detections_str = ", ".join(str(detection) for detection in self.detections)
+        return f"{self.__class__.__name__}, Detections ({len(self.detections)}): {detections_str}, str{self.odometry}"
