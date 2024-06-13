@@ -4,6 +4,7 @@ Data merge worker integration test.
 
 import multiprocessing as mp
 import queue
+import time
 
 from worker import queue_wrapper
 from worker import worker_controller
@@ -12,11 +13,12 @@ from modules import drone_odometry_local
 from modules import lidar_detection
 from modules import detections_and_odometry
 from modules.data_merge import data_merge_worker
-from ..common.mavlink.modules import drone_odometry
+from modules.common.mavlink.modules import drone_odometry
 
 
 # Constants
 QUEUE_MAX_SIZE = 10
+DELAY = 0.1  # seconds
 
 
 def simulate_detection_worker(in_queue: queue_wrapper.QueueWrapper, identifier: int) -> None:
@@ -27,6 +29,7 @@ def simulate_detection_worker(in_queue: queue_wrapper.QueueWrapper, identifier: 
     assert result
     assert detection is not None
 
+    print("simulated detection: " + str(identifier))
     in_queue.queue.put(detection)
 
 
@@ -46,6 +49,7 @@ def simulate_flight_interface_worker(in_queue: queue_wrapper.QueueWrapper, ident
     assert result
     assert odometry is not None
 
+    print("simulated flight interface: " + str(identifier))
     in_queue.queue.put(odometry)
 
 
@@ -67,6 +71,7 @@ def main() -> int:
     worker = mp.Process(
         target=data_merge_worker.data_merge_worker,
         args=(
+            DELAY,
             detection_in_queue,
             odometry_in_queue,
             data_merge_out_queue,
@@ -76,10 +81,13 @@ def main() -> int:
 
     # Run
     worker.start()
+    print("worker started")
 
     # simulating 1 lidar reading and 1 odometry reading
     detection_count += 1
     simulate_detection_worker(detection_in_queue, detection_count)
+
+    time.sleep(DELAY)  # simulating flight interface processing time
     odometry_count += 1
     simulate_flight_interface_worker(odometry_in_queue, odometry_count)
 
@@ -87,6 +95,8 @@ def main() -> int:
     for _ in range(0, 5):
         detection_count += 1
         simulate_detection_worker(detection_in_queue, detection_count)
+
+    time.sleep(DELAY)  # simulating flight interface processing time
     odometry_count += 1
     simulate_flight_interface_worker(odometry_in_queue, odometry_count)
 
@@ -100,13 +110,15 @@ def main() -> int:
             assert input_data is not None
             assert (
                 str(type(input_data))
-                == "class 'modules.detections_and_odometry.DetectionsAndOdometry'>"
+                == "<class 'modules.detections_and_odometry.DetectionsAndOdometry'>"
             )
 
+            print("received detection and odometry")
             print(input_data)
 
         except queue.Empty:
-            break
+            print("queue is empty")
+            time.sleep(DELAY)
 
     # Teardown
     controller.request_exit()

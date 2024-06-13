@@ -2,15 +2,19 @@
 Merges local drone odometry with LiDAR detections
 """
 
+import queue
+import time
+
 from worker import queue_wrapper
 from worker import worker_controller
 
-from modules import detection_and_odometry
+from modules import detections_and_odometry
 from modules import drone_odometry_local
 from modules import lidar_detection
 
 
 def data_merge_worker(
+    delay: float,
     detection_input_queue: queue_wrapper.QueueWrapper,
     odometry_input_queue: queue_wrapper.QueueWrapper,
     output_queue: queue_wrapper.QueueWrapper,
@@ -27,21 +31,29 @@ def data_merge_worker(
     while not controller.is_exit_requested():
         controller.check_pause()
 
-        detection: lidar_detection.LidarDetection = detection_input_queue.queue.get_nowait()
-        detections.append(detection)
+        try:
+            detection: lidar_detection.LidarDetection = detection_input_queue.queue.get_nowait()
+            detections.append(detection)
+            print("adding detection: " + str(detection))
+        except queue.Empty:
+            print("no detection received")
+            time.sleep(delay)
 
-        if detection is None:
+        try:
+            odometry: drone_odometry_local.DroneOdometryLocal = (
+                odometry_input_queue.queue.get_nowait()
+            )
+            print("received odometry")
+
+        except queue.Empty:
+            print("no odometry received")
             continue
 
-        odometry: drone_odometry_local.DroneOdometryLocal = odometry_input_queue.queue.get_nowait()
+        result, merged = detections_and_odometry.DetectionsAndOdometry.create(detections, odometry)
 
-        if odometry is not None:
-            result, merged = detection_and_odometry.DetectionAndOdometry.create(
-                detections, odometry
-            )
+        if not result:
+            continue
 
-            if not result:
-                continue
-
-            detections = []
-            output_queue.queue.put(merged)
+        print("success, added to queue")
+        detections = []
+        output_queue.queue.put(merged)
