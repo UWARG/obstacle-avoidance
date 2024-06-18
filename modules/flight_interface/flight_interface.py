@@ -49,7 +49,9 @@ class FlightInterface:
         self.controller = controller
         self.home_location = home_location
 
-    def run(self, command: decision_command.DecisionCommand) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
+    def run(
+        self, command: decision_command.DecisionCommand
+    ) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
         Uploads decision commands to drone and returns local drone odometry with timestamp.
         """

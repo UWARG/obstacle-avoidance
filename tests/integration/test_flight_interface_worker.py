@@ -47,7 +47,9 @@ def main() -> int:
 
     while True:
         try:
-            input_data: drone_odometry_local.DroneOdometryLocal = odometry_out_queue.queue.get_nowait()
+            input_data: drone_odometry_local.DroneOdometryLocal = (
+                odometry_out_queue.queue.get_nowait()
+            )
             assert (
                 str(type(input_data)) == "<class 'modules.drone_odometry_local.DroneOdometryLocal'>"
             )
