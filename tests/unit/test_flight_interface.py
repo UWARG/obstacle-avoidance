@@ -7,7 +7,7 @@ from modules.flight_interface import flight_interface
 
 def create_flight_interface_instance(
     address: str, timeout: float
-) -> "tuple[bool, FlightInterface | None]":
+) -> "tuple[bool, flight_interface.FlightInterface | None]":
     """
     Construct a flight interface instance.
     """

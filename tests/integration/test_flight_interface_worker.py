@@ -23,11 +23,11 @@ def main() -> int:
     """
     Main function.
     """
-
     controller = worker_controller.WorkerController()
-    manager = mp.Manager()
+    mp_manager = mp.Manager()
 
-    output_queue = queue_wrapper.QueueWrapper(manager, QUEUE_MAX_SIZE)
+    command_in_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    odometry_out_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
     worker = mp.Process(
         target=flight_interface_worker.flight_interface_worker,
@@ -35,7 +35,8 @@ def main() -> int:
             FLIGHT_INTERFACE_ADDRESS,
             FLIGHT_INTERFACE_TIMEOUT,
             FLIGHT_INTERFACE_WORKER_PERIOD,
-            output_queue,
+            command_in_queue,
+            odometry_out_queue,
             controller,
         ),
     )
@@ -46,7 +47,7 @@ def main() -> int:
 
     while True:
         try:
-            input_data: drone_odometry_local.DroneOdometryLocal = output_queue.queue.get_nowait()
+            input_data: drone_odometry_local.DroneOdometryLocal = odometry_out_queue.queue.get_nowait()
             assert (
                 str(type(input_data)) == "<class 'modules.drone_odometry_local.DroneOdometryLocal'>"
             )
@@ -66,6 +67,8 @@ def main() -> int:
             break
 
     controller.request_exit()
+
+    command_in_queue.fill_and_drain_queue()
 
     worker.join()
 

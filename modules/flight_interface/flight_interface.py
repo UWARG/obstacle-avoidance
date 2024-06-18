@@ -3,10 +3,12 @@ Creates flight controller and produces local drone odometry coupled with a times
 """
 
 from . import conversions
-from .. import drone_odometry_local
 
-from ..common.mavlink.modules import drone_odometry
-from ..common.mavlink.modules import flight_controller
+from modules import drone_odometry_local
+from modules import decision_command
+
+from common.mavlink.modules import drone_odometry
+from common.mavlink.modules import flight_controller
 
 
 class FlightInterface:
@@ -47,10 +49,13 @@ class FlightInterface:
         self.controller = controller
         self.home_location = home_location
 
-    def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
+    def run(self, command: decision_command.DecisionCommand) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
-        Returns local drone odometry with timestamp.
+        Uploads decision commands to drone and returns local drone odometry with timestamp.
         """
+        if command is not None:
+            self.controller.upload_commands(command.commands)
+
         result, odometry = self.controller.get_odometry()
         if not result:
             return False, None
