@@ -43,10 +43,11 @@ def flight_interface_worker(
 
         try:
             command: decision_command.DecisionCommand = command_in_queue.queue.get()
+            interface.run_decision_handler(command)
         except queue.Empty:
             pass
 
-        result, value = interface.run(command)
+        result, value = interface.run()
         if not result:
             continue
 

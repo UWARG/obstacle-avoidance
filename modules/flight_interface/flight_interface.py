@@ -49,15 +49,10 @@ class FlightInterface:
         self.controller = controller
         self.home_location = home_location
 
-    def run(
-        self, command: decision_command.DecisionCommand
-    ) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
+    def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
-        Uploads decision commands to drone and returns local drone odometry with timestamp.
+        Returns local drone odometry with timestamp.
         """
-        if command is not None:
-            self.controller.upload_commands(command.commands)
-
         result, odometry = self.controller.get_odometry()
         if not result:
             return False, None
@@ -73,3 +68,29 @@ class FlightInterface:
         drone_orientation = odometry.orientation
 
         return drone_odometry_local.DroneOdometryLocal.create(local_position, drone_orientation)
+
+    def run_decision_handler(self, command: decision_command.DecisionCommand) -> bool:
+        """
+        Uploads decision commands to drone.
+        """
+        if command is None:
+            return False
+        if command == "RESUME":
+            self.resume_handler()
+            return True
+        if command == "STOP":
+            self.stop_handler()
+            return True
+        return False
+
+    def resume_handler(self) -> None:
+        """
+        Resumes the AUTO mission.
+        """
+        self.controller.set_flight_mode("AUTO")
+
+    def stop_handler(self) -> None:
+        """
+        Stops the drone.
+        """
+        self.controller.set_flight_mode("LOITER")
