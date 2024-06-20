@@ -20,7 +20,7 @@ def decision_worker(
     controller is how the main process communicates to this worker process.
     """
 
-    decider = decision.Decision()
+    decider = decision.Decision("HALTED")
 
     while not controller.is_exit_requested():
         controller.check_pause()

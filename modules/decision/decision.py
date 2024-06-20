@@ -8,8 +8,9 @@ class Decision:
     Determines best action to avoid obstacles based on LiDAR and odometry data.
     """
 
-    def __init__(self):
+    def __init__(self, state):
         self.detection_and_odometries = []
+        self.state = state
 
     def run_simple_decision(self, detections_and_odometries, proximity_limit):
         """
@@ -18,15 +19,17 @@ class Decision:
         for detections_and_odometry in detections_and_odometries:
             detections = detections_and_odometry.detections
 
-            if HALTED:
+            if self.state == "HALTED":
                 for detection in detections:
                     if detection.distance < proximity_limit:
                         return None
-                    return RESUME_COMMAND
+                    self.state = "MOVING"
+                    return "RESUME"
             else:
                 for detection in detections:
                     if detection.distance < proximity_limit:
-                        return HALT_COMMAND
+                        self.state = "HALTED"
+                        return "STOP"
         return None
 
     def run(self, merged_data):
