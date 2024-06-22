@@ -75,10 +75,10 @@ class FlightInterface:
         """
         if command is None:
             return False
-        if command == "RESUME":
+        if command.command == decision_command.DecisionCommand.CommandType.RESUME:
             self.resume_handler()
             return True
-        if command == "STOP":
+        if command.command == decision_command.DecisionCommand.CommandType.STOP:
             self.stop_handler()
             return True
         return False

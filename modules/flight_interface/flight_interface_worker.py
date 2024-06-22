@@ -42,7 +42,7 @@ def flight_interface_worker(
         command = None
 
         try:
-            command: decision_command.DecisionCommand = command_in_queue.queue.get()
+            command: decision_command.DecisionCommand = command_in_queue.queue.get_nowait()
             interface.run_decision_handler(command)
         except queue.Empty:
             pass
