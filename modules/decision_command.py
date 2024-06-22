@@ -26,14 +26,16 @@ class DecisionCommand:
         RESUME_MISSION = 1
 
     @classmethod
-    def create_stop_command(cls) -> "tuple[bool, DecisionCommand | None]":
+    def create_stop_mission_and_halt_command(cls) -> "tuple[bool, DecisionCommand | None]":
         """
         Command to stop and loiter the drone.
         """
-        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.STOP_MISSION_AND_HALT)
+        return True, DecisionCommand(
+            cls.__create_key, DecisionCommand.CommandType.STOP_MISSION_AND_HALT
+        )
 
     @classmethod
-    def create_resume_command(cls) -> "tuple[bool, DecisionCommand | None]":
+    def create_resume_mission_command(cls) -> "tuple[bool, DecisionCommand | None]":
         """
         Command to resume auto mission.
         """
