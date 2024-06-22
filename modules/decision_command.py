@@ -4,6 +4,7 @@ Command data structure used by decision module.
 
 import enum
 
+
 class DecisionCommand:
     """
     Contains command to send to drone.
@@ -20,9 +21,9 @@ class DecisionCommand:
         """
         Valid commands.
         """
+
         STOP = 0
         RESUME = 1
-
 
     @classmethod
     def create_stop_command(cls) -> "tuple[bool, DecisionCommand | None]":
@@ -30,7 +31,7 @@ class DecisionCommand:
         Command to stop and loiter the drone.
         """
         return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.STOP)
-    
+
     @classmethod
     def create_resume_command(cls) -> "tuple[bool, DecisionCommand | None]":
         """
