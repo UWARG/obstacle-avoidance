@@ -52,7 +52,7 @@ class Decision:
                     return True, decision_command.DecisionCommand.create_stop_command()
         return False, None
 
-    def run(self, merged_data) -> decision_command.DecisionCommand:
+    def run(self, merged_data) -> "tuple[bool, decision_command.DecisionCommand | None]":
         """
         Run obstacle avoidance.
         """
