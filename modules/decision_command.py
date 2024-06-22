@@ -2,24 +2,43 @@
 Command data structure used by decision module.
 """
 
+import enum
 
 class DecisionCommand:
     """
-    Contains list of commands to send to drone.
+    Contains command to send to drone.
+
+    The following are valid command constructors:
+
+    * DecisionCommand.create_stop_command
+    * DecisionCommand.create_resume_command
     """
 
     __create_key = object()
 
-    @classmethod
-    def create(cls, command: "str") -> "tuple[bool, DecisionCommand | None]":
+    class CommandType(enum.Enum):
         """
-        Creates a list of commands to send to the drone.
+        Valid commands.
         """
-        if command is None:
-            return False, None
-        return True, DecisionCommand(cls.__create_key, command)
+        STOP = 0
+        RESUME = 1
 
-    def __init__(self, create_key: object, command: str) -> None:
+
+    @classmethod
+    def create_stop_command(cls) -> "tuple[bool, DecisionCommand | None]":
+        """
+        Command to stop and loiter the drone.
+        """
+        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.STOP)
+    
+    @classmethod
+    def create_resume_command(cls) -> "tuple[bool, DecisionCommand | None]":
+        """
+        Command to resume auto mission.
+        """
+        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.RESUME)
+
+    def __init__(self, create_key: object, command: CommandType) -> None:
         """
         Private constructor, use create() method.
         """
@@ -27,5 +46,8 @@ class DecisionCommand:
 
         self.command = command
 
-    def __str__(self):
-        pass
+    def __str__(self) -> str:
+        """
+        String representation
+        """
+        return f"{self.__class__.__name__}: {self.command}"
