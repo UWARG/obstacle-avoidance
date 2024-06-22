@@ -22,22 +22,22 @@ class DecisionCommand:
         Valid commands.
         """
 
-        STOP = 0
-        RESUME = 1
+        STOP_MISSION_AND_HALT = 0
+        RESUME_MISSION = 1
 
     @classmethod
     def create_stop_command(cls) -> "tuple[bool, DecisionCommand | None]":
         """
         Command to stop and loiter the drone.
         """
-        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.STOP)
+        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.STOP_MISSION_AND_HALT)
 
     @classmethod
     def create_resume_command(cls) -> "tuple[bool, DecisionCommand | None]":
         """
         Command to resume auto mission.
         """
-        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.RESUME)
+        return True, DecisionCommand(cls.__create_key, DecisionCommand.CommandType.RESUME_MISSION)
 
     def __init__(self, create_key: object, command: CommandType) -> None:
         """
