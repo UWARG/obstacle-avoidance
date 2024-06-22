@@ -9,6 +9,7 @@ from . import decision
 
 
 def decision_worker(
+    object_proximity_limit: float,
     merged_in_queue: queue_wrapper.QueueWrapper,
     command_out_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
@@ -16,11 +17,12 @@ def decision_worker(
     """
     Worker process
 
+    object_proximity_limit is the minimum distance the drone will maintain from an object (in metres).
     merged_in_queue, command_out_queue are data queues.
     controller is how the main process communicates to this worker process.
     """
 
-    decider = decision.Decision("HALTED")
+    decider = decision.Decision(decision.Decision.DroneState.STOPPED, object_proximity_limit)
 
     while not controller.is_exit_requested():
         controller.check_pause()
@@ -29,9 +31,7 @@ def decision_worker(
         if merged_data is None:
             continue
 
-        decider.detection_and_odometries.append(merged_data)
-
-        result, value = decider.run(decider.detection_and_odometries)
+        result, value = decider.run(merged_data)
         if not result:
             continue
 
