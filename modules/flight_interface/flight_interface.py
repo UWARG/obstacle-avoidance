@@ -73,8 +73,6 @@ class FlightInterface:
         """
         Uploads decision commands to drone.
         """
-        if command is None:
-            return False
         if command.command == decision_command.DecisionCommand.CommandType.RESUME:
             self.resume_handler()
             return True
