@@ -44,15 +44,12 @@ class Decision:
                     if detection.distance < proximity_limit:
                         return False, None
                 self.state = Decision.DroneState.MOVING
-                return True, decision_command.DecisionCommand.create_resume_mission_command()
+                return decision_command.DecisionCommand.create_resume_mission_command()
 
             for detection in detections:
                 if detection.distance < proximity_limit:
                     self.state = Decision.DroneState.STOPPED
-                    return (
-                        True,
-                        decision_command.DecisionCommand.create_stop_mission_and_halt_command(),
-                    )
+                    return decision_command.DecisionCommand.create_stop_mission_and_halt_command()
         return False, None
 
     def run(
