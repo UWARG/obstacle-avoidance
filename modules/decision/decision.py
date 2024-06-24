@@ -3,6 +3,7 @@ Creates decision for next action based on LiDAR detections and current odometry.
 """
 
 import enum
+
 from .. import decision_command
 from .. import detections_and_odometry
 
