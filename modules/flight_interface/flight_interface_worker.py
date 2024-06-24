@@ -6,10 +6,8 @@ import time
 import queue
 
 from modules import decision_command
-
 from worker import queue_wrapper
 from worker import worker_controller
-
 from . import flight_interface
 
 
@@ -43,6 +41,8 @@ def flight_interface_worker(
         if not result:
             continue
 
+        odometry_out_queue.queue.put(value)
+
         try:
             command: decision_command.DecisionCommand = command_in_queue.queue.get_nowait()
             if command is None:
@@ -51,5 +51,3 @@ def flight_interface_worker(
             continue
 
         interface.run_decision_handler(command)
-
-        odometry_out_queue.queue.put(value)
