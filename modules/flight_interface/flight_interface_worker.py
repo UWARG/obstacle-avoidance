@@ -5,10 +5,10 @@ Fetches local drone odometry.
 import time
 import queue
 
+from modules import decision_command
+
 from worker import queue_wrapper
 from worker import worker_controller
-
-from modules import decision_command
 
 from . import flight_interface
 
@@ -45,6 +45,8 @@ def flight_interface_worker(
 
         try:
             command: decision_command.DecisionCommand = command_in_queue.queue.get_nowait()
+            if command is None:
+                break
         except queue.Empty:
             continue
 
