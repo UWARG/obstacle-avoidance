@@ -72,21 +72,19 @@ class FlightInterface:
         Uploads decision commands to drone.
         """
         if command.command == decision_command.DecisionCommand.CommandType.RESUME:
-            self.resume_handler()
-            return True
+            return self.resume_handler()
         if command.command == decision_command.DecisionCommand.CommandType.STOP:
-            self.stop_handler()
-            return True
+            return self.stop_handler()
         return False
 
-    def resume_handler(self) -> None:
+    def resume_handler(self) -> bool:
         """
         Resumes the AUTO mission.
         """
-        self.controller.set_flight_mode("AUTO")
+        return self.controller.set_flight_mode("AUTO")
 
-    def stop_handler(self) -> None:
+    def stop_handler(self) -> bool:
         """
         Stops the drone.
         """
-        self.controller.set_flight_mode("LOITER")
+        return self.controller.set_flight_mode("LOITER")
