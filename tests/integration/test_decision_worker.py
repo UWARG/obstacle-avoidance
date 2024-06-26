@@ -4,6 +4,7 @@ Decision worker integration test.
 
 import multiprocessing as mp
 import queue
+import time
 
 from worker import queue_wrapper
 from worker import worker_controller
@@ -19,7 +20,7 @@ from modules.decision import decision_worker
 # Constants
 QUEUE_MAX_SIZE = 10
 
-INITIAL_DRONE_STATE = decision.Decision.DroneState.STOPPED
+INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
 OBJECT_PROXIMITY_LIMIT = 5  # metres
 MAX_HISTORY = 20  # readings
 
@@ -30,6 +31,7 @@ def simulate_data_merge_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     """
     Place example merged detection into the queue.
     """
+    time.sleep(2)
     detections = []
     for _ in range(0, 5):
         result, detection = lidar_detection.LidarDetection.create(0.0, 0.0)
@@ -61,7 +63,6 @@ def main() -> int:
     """
     Main function.
     """
-
     # Setup
     controller = worker_controller.WorkerController()
     mp_manager = mp.Manager()
@@ -84,13 +85,17 @@ def main() -> int:
     # Run
     worker.start()
 
+    simulate_data_merge_worker(merged_in_queue)
+
     # Test
     while True:
         try:
-            input_data: decision_command.DecisionCommand = command_out_queue.get_nowait()
+            input_data: decision_command.DecisionCommand = command_out_queue.queue.get_nowait()
 
             assert input_data is not None
             assert str(type(input_data)) == "<class 'modules.decision_command.DecisionCommand'>"
+
+            print(input_data.command)
 
         except queue.Empty:
             continue
