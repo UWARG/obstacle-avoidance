@@ -42,7 +42,7 @@ def main() -> int:
 
     INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
     OBJECT_PROXIMITY_LIMIT = 10  # metres
-    MAX_HISTORY = 20 # readings
+    MAX_HISTORY = 20  # readings
     # pylint: enable=invalid-name
 
     controller = worker_controller.WorkerController()
