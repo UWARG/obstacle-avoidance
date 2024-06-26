@@ -54,6 +54,6 @@ def data_merge_worker(
         if not result:
             continue
 
-        print("Data merge: Successfully merged detections and odometry.")
+        print(f"Data merge: Successfully merged detections and odometry: {merged}")
         detections = []
         output_queue.queue.put(merged)

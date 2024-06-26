@@ -39,7 +39,7 @@ def flight_interface_worker(
 
         result, value = interface.run()
         if result:
-            print("Flight interface: Odometry fetched.")
+            print(f"Flight interface: Odometry fetched: {value}")
             odometry_out_queue.queue.put(value)
 
         try:

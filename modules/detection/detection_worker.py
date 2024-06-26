@@ -46,5 +46,5 @@ def detection_worker(
         if not result:
             continue
 
-        print("Detection: Detection fetched.")
+        print(f"Detection: Detection fetched: {value}")
         output_queue.queue.put(value)
