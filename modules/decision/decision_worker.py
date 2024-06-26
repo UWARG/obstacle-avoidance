@@ -30,7 +30,7 @@ def decision_worker(
 
         merged_data: detections_and_odometry.DetectionsAndOdometry = merged_in_queue.queue.get()
         if merged_data is None:
-            continue
+            break
 
         result, value = decider.run(merged_data)
         if not result:
