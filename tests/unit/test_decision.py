@@ -14,7 +14,7 @@ from modules.decision import decision
 
 
 OBJECT_PROXIMITY_LIMIT = 5.0  # metres
-MAX_HISTORY = 20 # readings
+MAX_HISTORY = 20  # readings
 
 # pylint: disable=redefined-outer-name, duplicate-code
 
