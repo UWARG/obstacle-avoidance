@@ -38,10 +38,8 @@ def flight_interface_worker(
         time.sleep(period)
 
         result, value = interface.run()
-        if not result:
-            continue
-
-        odometry_out_queue.queue.put(value)
+        if result:
+            odometry_out_queue.queue.put(value)
 
         try:
             command: decision_command.DecisionCommand = command_in_queue.queue.get_nowait()
