@@ -42,6 +42,7 @@ def main() -> int:
 
     INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
     OBJECT_PROXIMITY_LIMIT = 10  # metres
+    MAX_HISTORY = 20 # readings
     # pylint: enable=invalid-name
 
     controller = worker_controller.WorkerController()
@@ -95,6 +96,7 @@ def main() -> int:
         args=(
             INITIAL_DRONE_STATE,
             OBJECT_PROXIMITY_LIMIT,
+            MAX_HISTORY,
             merged_to_decision_queue,
             command_to_flight_interface_queue,
             controller,
