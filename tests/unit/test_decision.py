@@ -128,7 +128,7 @@ class TestDecision:
 
         assert result
         assert command is not None
-        assert command == expected
+        assert command.command == expected
 
     def test_decision_outside_proximity_limit_moving(
         self,
@@ -174,4 +174,4 @@ class TestDecision:
 
         assert result
         assert command is not None
-        assert command == expected
+        assert command.command == expected
