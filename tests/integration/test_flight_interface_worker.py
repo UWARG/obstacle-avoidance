@@ -19,6 +19,7 @@ FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
 FLIGHT_INTERFACE_TIMEOUT = 10.0
 FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
 
+
 def simulate_decision_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     """
     Place example commands into the queue.
@@ -34,8 +35,6 @@ def simulate_decision_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     assert resume_command is not None
 
     in_queue.queue.put(resume_command)
-
-    
 
 
 def main() -> int:
