@@ -24,7 +24,7 @@ def flight_interface_worker(
 
     address, timeout is initial setting.
     period is minimum period between loops.
-    output_queue is the data queue.
+    command_in_queue, odometry_out_queue are the data queues.
     controller is how the main process communicates to this worker process.
     """
 
