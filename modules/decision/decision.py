@@ -2,6 +2,7 @@
 Creates decision for next action based on LiDAR detections and current odometry.
 """
 
+from collections import deque
 import enum
 
 from .. import decision_command
@@ -21,17 +22,17 @@ class Decision:
         STOPPED = 0
         MOVING = 1
 
-    def __init__(self, state: DroneState, proximity_limit: float) -> None:
+    def __init__(self, state: DroneState, proximity_limit: float, max_history: int) -> None:
         """
         Initialize current drone state and its lidar detections list.
         """
-        self.detection_and_odometries = []
+        self.detections_and_odometries = deque(maxlen=max_history)
         self.state = state
         self.proximity_limit = proximity_limit
 
     def run_simple_decision(
         self,
-        detections_and_odometries: detections_and_odometry.DetectionsAndOdometry,
+        detections_and_odometries: "deque[detections_and_odometry.DetectionsAndOdometry]",
         proximity_limit: float,
     ) -> "tuple[bool, decision_command.DecisionCommand | None]":
         """
@@ -59,5 +60,5 @@ class Decision:
         """
         Run obstacle avoidance.
         """
-        self.detection_and_odometries.append(merged_data)
-        return self.run_simple_decision(self.detection_and_odometries, self.proximity_limit)
+        self.detections_and_odometries.append(merged_data)
+        return self.run_simple_decision(self.detections_and_odometries, self.proximity_limit)
