@@ -34,19 +34,19 @@ def data_merge_worker(
         try:
             detection: lidar_detection.LidarDetection = detection_input_queue.queue.get_nowait()
             detections.append(detection)
-            print("adding detection: " + str(detection))
+            print("Data merge: Received and added detection.")
         except queue.Empty:
-            print("no detection received")
+            print("Data merge: No detection received.")
             time.sleep(delay)
 
         try:
             odometry: drone_odometry_local.DroneOdometryLocal = (
                 odometry_input_queue.queue.get_nowait()
             )
-            print("received odometry")
+            print("Data merge: Received odometry.")
 
         except queue.Empty:
-            print("no odometry received")
+            print("Data merge: No odometry received")
             continue
 
         result, merged = detections_and_odometry.DetectionsAndOdometry.create(detections, odometry)
@@ -54,6 +54,6 @@ def data_merge_worker(
         if not result:
             continue
 
-        print("success, added to queue")
+        print("Data merge: Successfully merged detections and odometry.")
         detections = []
         output_queue.queue.put(merged)

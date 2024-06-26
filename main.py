@@ -105,12 +105,15 @@ def main() -> int:
     data_merge_process.start()
     decision_process.start()
 
+    print("Main: Workers started.")
+
     while True:
         try:
             time.sleep(0.1)
 
         except KeyboardInterrupt:
             controller.request_exit()
+            print("Main: Tearing down.")
             break
 
     flight_interface_to_data_merge_queue.fill_and_drain_queue()

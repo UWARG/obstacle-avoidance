@@ -39,15 +39,15 @@ def flight_interface_worker(
 
         result, value = interface.run()
         if result:
+            print("Flight interface: Odometry fetched.")
             odometry_out_queue.queue.put(value)
 
         try:
             command: decision_command.DecisionCommand = command_in_queue.queue.get_nowait()
             if command is None:
                 break
+            print(f"Flight interface: Command: {str(command.command)} received and sent to drone.")
         except queue.Empty:
             continue
 
         result = interface.run_decision_handler(command)
-        if result:
-            print(f"Command: {str(command.command)} received and sent to drone.")

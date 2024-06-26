@@ -83,7 +83,7 @@ class FlightInterface:
         """
         result = self.controller.set_flight_mode("AUTO")
         if result:
-            print("Successfully set flight mode to AUTO.")
+            print("Flight interface: Successfully set flight mode to AUTO.")
         return result
 
     def stop_handler(self) -> bool:
@@ -92,5 +92,5 @@ class FlightInterface:
         """
         result = self.controller.set_flight_mode("LOITER")
         if result:
-            print("Successfully set flight mode to LOITER.")
+            print("Flight interface: Successfully set flight mode to LOITER.")
         return result
