@@ -6,7 +6,7 @@ import multiprocessing as mp
 import queue
 import time
 
-
+from modules import decision_command
 from modules import drone_odometry_local
 from modules.flight_interface import flight_interface_worker
 from worker import worker_controller
@@ -19,11 +19,30 @@ FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
 FLIGHT_INTERFACE_TIMEOUT = 10.0
 FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
 
+def simulate_decision_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
+    """
+    Place example commands into the queue.
+    """
+    result, stop_command = decision_command.DecisionCommand.create_stop_mission_and_halt_command()
+    assert result
+    assert stop_command is not None
+
+    in_queue.queue.put(stop_command)
+
+    result, resume_command = decision_command.DecisionCommand.create_resume_mission_command()
+    assert result
+    assert resume_command is not None
+
+    in_queue.queue.put(resume_command)
+
+    
+
 
 def main() -> int:
     """
     Main function.
     """
+    # Setup
     controller = worker_controller.WorkerController()
     mp_manager = mp.Manager()
 
@@ -42,10 +61,14 @@ def main() -> int:
         ),
     )
 
+    # Run
     worker.start()
+
+    simulate_decision_worker(command_in_queue)
 
     time.sleep(3)
 
+    # Test
     while True:
         try:
             input_data: drone_odometry_local.DroneOdometryLocal = (
@@ -57,18 +80,19 @@ def main() -> int:
             assert input_data.local_position is not None
             assert input_data.drone_orientation is not None
 
-            print("north: " + str(input_data.local_position.north))
-            print("east: " + str(input_data.local_position.east))
-            print("down: " + str(input_data.local_position.down))
-            print("roll: " + str(input_data.drone_orientation.roll))
-            print("pitch: " + str(input_data.drone_orientation.pitch))
-            print("yaw: " + str(input_data.drone_orientation.yaw))
-            print("timestamp: " + str(input_data.timestamp))
+            print(f"north: {str(input_data.local_position.north)}")
+            print(f"east: {str(input_data.local_position.east)}")
+            print(f"down: {str(input_data.local_position.down)}")
+            print(f"roll: {str(input_data.drone_orientation.roll)}")
+            print(f"pitch: {str(input_data.drone_orientation.pitch)}")
+            print(f"yaw: {str(input_data.drone_orientation.yaw)}")
+            print(f"timestamp: {str(input_data.timestamp)}")
             print("")
 
         except queue.Empty:
             break
 
+    # Teardown
     controller.request_exit()
 
     command_in_queue.fill_and_drain_queue()

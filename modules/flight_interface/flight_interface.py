@@ -81,10 +81,16 @@ class FlightInterface:
         """
         Resumes the AUTO mission.
         """
-        return self.controller.set_flight_mode("AUTO")
+        result = self.controller.set_flight_mode("AUTO")
+        if result:
+            print("Successfully set flight mode to AUTO.")
+        return result
 
     def stop_handler(self) -> bool:
         """
         Stops the drone.
         """
-        return self.controller.set_flight_mode("LOITER")
+        result = self.controller.set_flight_mode("LOITER")
+        if result:
+            print("Successfully set flight mode to LOITER.")
+        return result

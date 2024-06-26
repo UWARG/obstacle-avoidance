@@ -48,4 +48,6 @@ def flight_interface_worker(
         except queue.Empty:
             continue
 
-        interface.run_decision_handler(command)
+        result = interface.run_decision_handler(command)
+        if result:
+            print("Command received and sent to drone.")
