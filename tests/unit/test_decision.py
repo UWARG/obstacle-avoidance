@@ -14,6 +14,7 @@ from modules.decision import decision
 
 
 OBJECT_PROXIMITY_LIMIT = 5.0  # metres
+MAX_HISTORY = 20 # readings
 
 # pylint: disable=redefined-outer-name, duplicate-code
 
@@ -24,7 +25,7 @@ def decision_maker_moving() -> decision.Decision:  # type: ignore
     Construct a decision instance with predefined object proximity limit.
     """
     decision_instance = decision.Decision(
-        decision.Decision.DroneState.MOVING, OBJECT_PROXIMITY_LIMIT
+        decision.Decision.DroneState.MOVING, OBJECT_PROXIMITY_LIMIT, MAX_HISTORY
     )
     yield decision_instance
 
@@ -35,7 +36,7 @@ def decision_maker_stopped() -> decision.Decision:  # type: ignore
     Construct a decision instance with predefined object proximity limit.
     """
     decision_instance = decision.Decision(
-        decision.Decision.DroneState.STOPPED, OBJECT_PROXIMITY_LIMIT
+        decision.Decision.DroneState.STOPPED, OBJECT_PROXIMITY_LIMIT, MAX_HISTORY
     )
     yield decision_instance
 

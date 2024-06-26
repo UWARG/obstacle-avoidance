@@ -21,6 +21,7 @@ QUEUE_MAX_SIZE = 10
 
 INITIAL_DRONE_STATE = decision.Decision.DroneState.STOPPED
 OBJECT_PROXIMITY_LIMIT = 5  # metres
+MAX_HISTORY = 20 # readings
 
 # pylint: disable=duplicate-code
 
@@ -73,6 +74,7 @@ def main() -> int:
         args=(
             INITIAL_DRONE_STATE,
             OBJECT_PROXIMITY_LIMIT,
+            MAX_HISTORY,
             merged_in_queue,
             command_out_queue,
             controller,
