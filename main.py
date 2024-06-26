@@ -3,6 +3,7 @@ Main
 """
 
 import multiprocessing as mp
+import time
 
 from modules import decision_command
 from modules import detections_and_odometry
@@ -110,29 +111,7 @@ def main() -> int:
 
     while True:
         try:
-            flight_interface_data: drone_odometry_local.DroneOdometryLocal = (
-                flight_interface_to_data_merge_queue.queue.get_nowait()
-            )
-            if flight_interface_data is not None:
-                print(flight_interface_data)
-
-            detection_data: lidar_detection.LidarDetection = (
-                detection_to_data_merge_queue.queue.get_nowait()
-            )
-            if detection_data is not None:
-                print(detection_data)
-
-            merged_data: detections_and_odometry.DetectionsAndOdometry = (
-                merged_to_decision_queue.queue.get_nowait()
-            )
-            if merged_data is not None:
-                print(merged_data)
-
-            command_data: decision_command.DecisionCommand = (
-                command_to_flight_interface_queue.queue.get_nowait()
-            )
-            if command_data is not None:
-                print(command_data)
+            time.sleep(0.1)
 
         except KeyboardInterrupt:
             controller.request_exit()
