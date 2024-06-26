@@ -22,6 +22,8 @@ QUEUE_MAX_SIZE = 10
 INITIAL_DRONE_STATE = decision.Decision.DroneState.STOPPED
 OBJECT_PROXIMITY_LIMIT = 5  # metres
 
+# pylint: disable=duplicate-code
+
 
 def simulate_data_merge_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     """

@@ -15,6 +15,8 @@ from modules.decision import decision
 
 OBJECT_PROXIMITY_LIMIT = 5.0  # metres
 
+# pylint: disable=redefined-outer-name, duplicate-code
+
 
 @pytest.fixture()
 def decision_maker_moving() -> decision.Decision:  # type: ignore
@@ -104,9 +106,6 @@ def object_outside_proximity_limit() -> detections_and_odometry.DetectionsAndOdo
     assert odometry is not None
 
     yield merged
-
-
-# pylint: disable=redefined-outer-name
 
 
 class TestDecision:
