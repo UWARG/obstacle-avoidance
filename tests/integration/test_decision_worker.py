@@ -4,7 +4,6 @@ Decision worker integration test.
 
 import multiprocessing as mp
 import queue
-import time
 
 from worker import queue_wrapper
 from worker import worker_controller
