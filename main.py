@@ -3,15 +3,15 @@ Main
 """
 
 import multiprocessing as mp
+import time
 
-from worker import worker_controller
-from worker import queue_wrapper
-
-from modules import drone_odometry_local
-from modules import lidar_detection
-
-from modules.flight_interface import flight_interface_worker
+from modules.data_merge import data_merge_worker
+from modules.decision import decision
+from modules.decision import decision_worker
 from modules.detection import detection_worker
+from modules.flight_interface import flight_interface_worker
+from worker import queue_wrapper
+from worker import worker_controller
 
 
 def main() -> int:
@@ -34,14 +34,21 @@ def main() -> int:
     HIGH_ANGLE = 170
     LOW_ANGLE = -170
     ROTATE_SPEED = 5
+
+    DELAY = 0.1
+
+    INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
+    OBJECT_PROXIMITY_LIMIT = 10  # metres
+    MAX_HISTORY = 20  # readings
     # pylint: enable=invalid-name
 
     controller = worker_controller.WorkerController()
-    manager = mp.Manager()
+    mp_manager = mp.Manager()
 
-    flight_interface_to_main_queue = queue_wrapper.QueueWrapper(manager, QUEUE_MAX_SIZE)
-
-    detection_to_main_queue = queue_wrapper.QueueWrapper(manager, QUEUE_MAX_SIZE)
+    flight_interface_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    detection_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    merged_to_decision_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    command_to_flight_interface_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
     flight_interface_process = mp.Process(
         target=flight_interface_worker.flight_interface_worker,
@@ -49,7 +56,8 @@ def main() -> int:
             FLIGHT_INTERFACE_ADDRESS,
             FLIGHT_INTERFACE_TIMEOUT,
             FLIGHT_INTERFACE_WORKER_PERIOD,
-            flight_interface_to_main_queue,
+            command_to_flight_interface_queue,
+            flight_interface_to_data_merge_queue,
             controller,
         ),
     )
@@ -64,39 +72,56 @@ def main() -> int:
             HIGH_ANGLE,
             LOW_ANGLE,
             ROTATE_SPEED,
-            detection_to_main_queue,
+            detection_to_data_merge_queue,
+            controller,
+        ),
+    )
+
+    data_merge_process = mp.Process(
+        target=data_merge_worker.data_merge_worker,
+        args=(
+            DELAY,
+            flight_interface_to_data_merge_queue,
+            detection_to_data_merge_queue,
+            merged_to_decision_queue,
+            controller,
+        ),
+    )
+
+    decision_process = mp.Process(
+        target=decision_worker.decision_worker,
+        args=(
+            INITIAL_DRONE_STATE,
+            OBJECT_PROXIMITY_LIMIT,
+            MAX_HISTORY,
+            merged_to_decision_queue,
+            command_to_flight_interface_queue,
             controller,
         ),
     )
 
     flight_interface_process.start()
     detection_process.start()
+    data_merge_process.start()
+    decision_process.start()
 
     while True:
         try:
-            flight_interface_data: drone_odometry_local.DroneOdometryLocal = (
-                flight_interface_to_main_queue.queue.get_nowait()
-            )
-
-            if flight_interface_data is not None:
-                print(flight_interface_data)
-
-            detection_data: lidar_detection.LidarDetection = (
-                detection_to_main_queue.queue.get_nowait()
-            )
-
-            if detection_data is not None:
-                print(detection_data)
+            time.sleep(0.1)
 
         except KeyboardInterrupt:
             controller.request_exit()
             break
 
-    flight_interface_to_main_queue.fill_and_drain_queue()
-    detection_to_main_queue.fill_and_drain_queue()
+    flight_interface_to_data_merge_queue.fill_and_drain_queue()
+    detection_to_data_merge_queue.fill_and_drain_queue()
+    merged_to_decision_queue.fill_and_drain_queue()
+    command_to_flight_interface_queue.fill_and_drain_queue()
 
     flight_interface_process.join()
     detection_process.join()
+    data_merge_process.join()
+    decision_process.join()
 
     return 0
 
