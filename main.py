@@ -5,10 +5,6 @@ Main
 import multiprocessing as mp
 import time
 
-from modules import decision_command
-from modules import detections_and_odometry
-from modules import drone_odometry_local
-from modules import lidar_detection
 from modules.data_merge import data_merge_worker
 from modules.decision import decision
 from modules.decision import decision_worker
