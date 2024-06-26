@@ -3,10 +3,11 @@ Fetches local drone odometry.
 """
 
 import time
+import queue
 
+from modules import decision_command
 from worker import queue_wrapper
 from worker import worker_controller
-
 from . import flight_interface
 
 
@@ -14,7 +15,8 @@ def flight_interface_worker(
     address: str,
     timeout: float,
     period: float,
-    output_queue: queue_wrapper.QueueWrapper,
+    command_in_queue: queue_wrapper.QueueWrapper,
+    odometry_out_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
 ) -> None:
     """
@@ -22,9 +24,10 @@ def flight_interface_worker(
 
     address, timeout is initial setting.
     period is minimum period between loops.
-    output_queue is the data queue.
+    command_in_queue, odometry_out_queue are the data queues.
     controller is how the main process communicates to this worker process.
     """
+
     result, interface = flight_interface.FlightInterface.create(address, timeout)
     if not result:
         return
@@ -35,7 +38,16 @@ def flight_interface_worker(
         time.sleep(period)
 
         result, value = interface.run()
-        if not result:
+        if result:
+            odometry_out_queue.queue.put(value)
+
+        try:
+            command: decision_command.DecisionCommand = command_in_queue.queue.get_nowait()
+            if command is None:
+                break
+        except queue.Empty:
             continue
 
-        output_queue.queue.put(value)
+        result = interface.run_decision_handler(command)
+        if result:
+            print(f"Command: {str(command.command)} received and sent to drone.")

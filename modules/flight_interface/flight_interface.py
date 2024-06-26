@@ -2,11 +2,11 @@
 Creates flight controller and produces local drone odometry coupled with a timestamp.
 """
 
-from . import conversions
-from .. import drone_odometry_local
-
+from modules import decision_command
+from modules import drone_odometry_local
 from ..common.mavlink.modules import drone_odometry
 from ..common.mavlink.modules import flight_controller
+from . import conversions
 
 
 class FlightInterface:
@@ -66,3 +66,31 @@ class FlightInterface:
         drone_orientation = odometry.orientation
 
         return drone_odometry_local.DroneOdometryLocal.create(local_position, drone_orientation)
+
+    def run_decision_handler(self, command: decision_command.DecisionCommand) -> bool:
+        """
+        Uploads decision commands to drone.
+        """
+        if command.command == decision_command.DecisionCommand.CommandType.RESUME:
+            return self.resume_handler()
+        if command.command == decision_command.DecisionCommand.CommandType.STOP:
+            return self.stop_handler()
+        return False
+
+    def resume_handler(self) -> bool:
+        """
+        Resumes the AUTO mission.
+        """
+        result = self.controller.set_flight_mode("AUTO")
+        if result:
+            print("Successfully set flight mode to AUTO.")
+        return result
+
+    def stop_handler(self) -> bool:
+        """
+        Stops the drone.
+        """
+        result = self.controller.set_flight_mode("LOITER")
+        if result:
+            print("Successfully set flight mode to LOITER.")
+        return result
