@@ -4,7 +4,6 @@ Decision worker integration test.
 
 import multiprocessing as mp
 import queue
-import time
 
 from worker import queue_wrapper
 from worker import worker_controller
@@ -31,7 +30,6 @@ def simulate_data_merge_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     """
     Place example merged detection into the queue.
     """
-    time.sleep(2)
     detections = []
     for _ in range(0, 5):
         result, detection = lidar_detection.LidarDetection.create(0.0, 0.0)
