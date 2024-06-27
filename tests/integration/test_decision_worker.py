@@ -19,7 +19,7 @@ from modules.decision import decision_worker
 # Constants
 QUEUE_MAX_SIZE = 10
 
-INITIAL_DRONE_STATE = decision.Decision.DroneState.STOPPED
+INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
 OBJECT_PROXIMITY_LIMIT = 5  # metres
 MAX_HISTORY = 20  # readings
 
@@ -61,7 +61,6 @@ def main() -> int:
     """
     Main function.
     """
-
     # Setup
     controller = worker_controller.WorkerController()
     mp_manager = mp.Manager()
@@ -84,13 +83,17 @@ def main() -> int:
     # Run
     worker.start()
 
+    simulate_data_merge_worker(merged_in_queue)
+
     # Test
     while True:
         try:
-            input_data: decision_command.DecisionCommand = command_out_queue.get_nowait()
+            input_data: decision_command.DecisionCommand = command_out_queue.queue.get_nowait()
 
             assert input_data is not None
             assert str(type(input_data)) == "<class 'modules.decision_command.DecisionCommand'>"
+
+            print(input_data.command)
 
         except queue.Empty:
             continue
