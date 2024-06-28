@@ -23,11 +23,11 @@ def main() -> int:
     # pylint: disable=invalid-name
     QUEUE_MAX_SIZE = 10
 
-    FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
+    FLIGHT_INTERFACE_ADDRESS = "/dev/ttyUSB0"
     FLIGHT_INTERFACE_TIMEOUT = 10.0
     FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
 
-    SERIAL_PORT_NAME = "/dev/tty.usbmodem38S45_158681"
+    SERIAL_PORT_NAME = "/dev/ttyACM0"
     SERIAL_PORT_BAUDRATE = 921600
     PORT_TIMEOUT = 0.1  # seconds
     UPDATE_RATE = 5
@@ -81,8 +81,8 @@ def main() -> int:
         target=data_merge_worker.data_merge_worker,
         args=(
             DELAY,
-            flight_interface_to_data_merge_queue,
             detection_to_data_merge_queue,
+            flight_interface_to_data_merge_queue,
             merged_to_decision_queue,
             controller,
         ),
