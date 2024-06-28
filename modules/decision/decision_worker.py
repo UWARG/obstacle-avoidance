@@ -37,5 +37,5 @@ def decision_worker(
         if not result:
             continue
 
-        print(f"Command sent: {value.command}")
+        print(f"Decision: Command sent: {value.command}")
         command_out_queue.queue.put(value)
