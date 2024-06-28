@@ -81,8 +81,8 @@ def main() -> int:
         target=data_merge_worker.data_merge_worker,
         args=(
             DELAY,
-            flight_interface_to_data_merge_queue,
             detection_to_data_merge_queue,
+            flight_interface_to_data_merge_queue,
             merged_to_decision_queue,
             controller,
         ),
