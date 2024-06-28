@@ -49,5 +49,3 @@ def flight_interface_worker(
             continue
 
         result = interface.run_decision_handler(command)
-        if result:
-            print(f"Command: {str(command.command)} received and sent to drone.")
