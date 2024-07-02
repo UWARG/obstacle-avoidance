@@ -3,7 +3,10 @@ Main
 """
 
 import multiprocessing as mp
+import pathlib
 import time
+
+import yaml
 
 from modules.data_merge import data_merge_worker
 from modules.decision import decision
@@ -13,35 +16,57 @@ from modules.flight_interface import flight_interface_worker
 from worker import queue_wrapper
 from worker import worker_controller
 
+CONFIG_FILE_PATH = pathlib.Path("config.yaml")
+
 
 def main() -> int:
     """
     Main function
     """
+    # Open config file
+    try:
+        with CONFIG_FILE_PATH.open("r", encoding="utf8") as file:
+            try:
+                config = yaml.safe_load(file)
+            except yaml.YAMLError as exc:
+                print(f"Error parsing YAML file: {exc}")
+                return -1
+    except FileNotFoundError:
+        print(f"File not found: {CONFIG_FILE_PATH}")
+        return -1
+    except IOError as exc:
+        print(f"Error when opening file: {exc}")
+        return -1
 
-    # Local constants
-    # pylint: disable=invalid-name
-    QUEUE_MAX_SIZE = 10
+    # Set constants
+    try:
+        # Local constants
+        # pylint: disable=invalid-name
+        QUEUE_MAX_SIZE = config["queue_max_size"]
 
-    FLIGHT_INTERFACE_ADDRESS = "/dev/ttyUSB0"
-    FLIGHT_INTERFACE_TIMEOUT = 10.0
-    FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
+        FLIGHT_INTERFACE_ADDRESS = config["flight_interface"]["address"]
+        FLIGHT_INTERFACE_TIMEOUT = config["flight_interface"]["timeout"]
+        FLIGHT_INTERFACE_WORKER_PERIOD = config["flight_interface"]["worker_period"]
 
-    SERIAL_PORT_NAME = "/dev/ttyACM0"
-    SERIAL_PORT_BAUDRATE = 921600
-    PORT_TIMEOUT = 0.1  # seconds
-    UPDATE_RATE = 5
-    HIGH_ANGLE = 170
-    LOW_ANGLE = -170
-    ROTATE_SPEED = 5
+        SERIAL_PORT_NAME = config["detection"]["serial_port_name"]
+        SERIAL_PORT_BAUDRATE = config["detection"]["serial_port_baudrate"]
+        PORT_TIMEOUT = config["detection"]["port_timeout"]
+        UPDATE_RATE = config["detection"]["update_rate"]
+        HIGH_ANGLE = config["detection"]["high_angle"]
+        LOW_ANGLE = config["detection"]["low_angle"]
+        ROTATE_SPEED = config["detection"]["rotate_speed"]
 
-    DELAY = 0.1
+        DELAY = config["data_merge"]["delay"]
 
-    INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
-    OBJECT_PROXIMITY_LIMIT = 10  # metres
-    MAX_HISTORY = 20  # readings
-    # pylint: enable=invalid-name
+        INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
+        OBJECT_PROXIMITY_LIMIT = config["decision"]["object_proximity_limit"]
+        MAX_HISTORY = config["decision"]["max_history"]
+        # pylint: enable=invalid-name
+    except KeyError:
+        print("Config key(s) not found.")
+        return -1
 
+    # Setup
     controller = worker_controller.WorkerController()
     mp_manager = mp.Manager()
 
@@ -100,6 +125,7 @@ def main() -> int:
         ),
     )
 
+    # Run
     flight_interface_process.start()
     detection_process.start()
     data_merge_process.start()
@@ -113,6 +139,7 @@ def main() -> int:
             controller.request_exit()
             break
 
+    # Teardown
     flight_interface_to_data_merge_queue.fill_and_drain_queue()
     detection_to_data_merge_queue.fill_and_drain_queue()
     merged_to_decision_queue.fill_and_drain_queue()

@@ -1,0 +1,25 @@
+# Global constants for main.
+
+queue_max_size: 10
+
+flight_interface:
+    address: "/dev/ttyUSB0"
+    timeout: 10.0 # seconds
+    worker_period: 0.1 # seconds
+
+detection:
+    serial_port_name: "/dev/ttyACM0"
+    serial_port_baudrate: 921600
+    port_timeout: 0.1 # seconds
+    update_rate: 5
+    high_angle: 170 # degrees
+    low_angle: -170 # degrees
+    rotate_speed: 5
+
+data_merge:
+    delay: 0.1 # seconds
+
+decision:
+    object_proximity_limit: 10 # metres
+    max_history: 20
+

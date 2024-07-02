@@ -1,6 +1,7 @@
 # Packaged in alphabetic order
 pymap3d
 pyserial
+pyyaml
 
 # Linters and formatters are explicitly versioned
 black==24.2.0
