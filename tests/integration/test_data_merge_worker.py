@@ -6,14 +6,13 @@ import multiprocessing as mp
 import queue
 import time
 
-from worker import queue_wrapper
-from worker import worker_controller
-
+from modules import detections_and_odometry
 from modules import drone_odometry_local
 from modules import lidar_detection
-from modules import detections_and_odometry
-from modules.data_merge import data_merge_worker
 from modules.common.mavlink.modules import drone_odometry
+from modules.data_merge import data_merge_worker
+from worker import queue_wrapper
+from worker import worker_controller
 
 
 # Constants
@@ -45,7 +44,11 @@ def simulate_flight_interface_worker(in_queue: queue_wrapper.QueueWrapper, ident
     assert result
     assert orientation is not None
 
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(position, orientation)
+    flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.MOVING
+
+    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
+        position, orientation, flight_mode
+    )
     assert result
     assert odometry is not None
 

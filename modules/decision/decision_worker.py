@@ -2,14 +2,13 @@
 Gets detections and odometry and outputs a decision.
 """
 
+from modules import detections_and_odometry
 from worker import queue_wrapper
 from worker import worker_controller
-from modules import detections_and_odometry
 from . import decision
 
 
 def decision_worker(
-    initial_drone_state: decision.Decision.DroneState,
     object_proximity_limit: float,
     max_history: int,
     merged_in_queue: queue_wrapper.QueueWrapper,
@@ -24,7 +23,7 @@ def decision_worker(
     controller is how the main process communicates to this worker process.
     """
 
-    decider = decision.Decision(initial_drone_state, object_proximity_limit, max_history)
+    decider = decision.Decision(object_proximity_limit, max_history)
 
     while not controller.is_exit_requested():
         controller.check_pause()

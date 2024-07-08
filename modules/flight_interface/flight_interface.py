@@ -65,7 +65,20 @@ class FlightInterface:
 
         drone_orientation = odometry.orientation
 
-        return drone_odometry_local.DroneOdometryLocal.create(local_position, drone_orientation)
+        result, flight_mode = self.controller.get_flight_mode()
+        if not result:
+            return False, None
+
+        if flight_mode == "LOITER":
+            flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.STOPPED
+        elif flight_mode == "AUTO":
+            flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.MOVING
+        else:
+            flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.MANUAL
+
+        return drone_odometry_local.DroneOdometryLocal.create(
+            local_position, drone_orientation, flight_mode
+        )
 
     def run_decision_handler(self, command: decision_command.DecisionCommand) -> bool:
         """

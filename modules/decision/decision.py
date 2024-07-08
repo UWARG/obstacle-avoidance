@@ -3,10 +3,10 @@ Creates decision for next action based on LiDAR detections and current odometry.
 """
 
 from collections import deque
-import enum
 
 from .. import decision_command
 from .. import detections_and_odometry
+from .. import drone_odometry_local
 
 
 class Decision:
@@ -14,21 +14,12 @@ class Decision:
     Determines best action to avoid obstacles based on LiDAR and odometry data.
     """
 
-    class DroneState(enum.Enum):
-        """
-        Possible drone states.
-        """
-
-        STOPPED = 0
-        MOVING = 1
-
-    def __init__(self, state: DroneState, proximity_limit: float, max_history: int) -> None:
+    def __init__(self, proximity_limit: float, max_history: int) -> None:
         """
         Initialize current drone state and its lidar detections list.
         """
-        self.detections_and_odometries = deque(maxlen=max_history)
-        self.state = state
         self.proximity_limit = proximity_limit
+        self.detections_and_odometries = deque(maxlen=max_history)
 
     def run_simple_decision(
         self,
@@ -39,19 +30,20 @@ class Decision:
         Runs simple collision avoidance where drone will stop within a set distance of an object.
         """
         for lidar_scan_and_odometry in detections_and_odometries:
+            current_flight_mode = lidar_scan_and_odometry.odometry.flight_mode
             detections = lidar_scan_and_odometry.detections
 
-            if self.state == Decision.DroneState.STOPPED:
+            if current_flight_mode == drone_odometry_local.DroneOdometryLocal.FlightMode.STOPPED:
                 for detection in detections:
                     if detection.distance < proximity_limit:
                         return False, None
-                self.state = Decision.DroneState.MOVING
                 return decision_command.DecisionCommand.create_resume_mission_command()
-
-            for detection in detections:
-                if detection.distance < proximity_limit:
-                    self.state = Decision.DroneState.STOPPED
-                    return decision_command.DecisionCommand.create_stop_mission_and_halt_command()
+            if current_flight_mode == drone_odometry_local.DroneOdometryLocal.FlightMode.MOVING:
+                for detection in detections:
+                    if detection.distance < proximity_limit:
+                        return (
+                            decision_command.DecisionCommand.create_stop_mission_and_halt_command()
+                        )
         return False, None
 
     def run(
