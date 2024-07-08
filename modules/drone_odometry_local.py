@@ -47,6 +47,7 @@ class DroneOdometryLocal:
     Data structure combining drone's local position, local orientation
     and timestamp.
     """
+
     class FlightMode(enum.Enum):
         """
         Possible drone flight modes.
