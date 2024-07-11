@@ -1,5 +1,4 @@
 # Packaged in alphabetic order
-dronekit
 pymap3d
 pyserial
 pyyaml
