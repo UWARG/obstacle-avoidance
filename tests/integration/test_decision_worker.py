@@ -10,6 +10,7 @@ from modules import detections_and_odometry
 from modules import drone_odometry_local
 from modules import lidar_detection
 from modules.common.mavlink.modules import drone_odometry
+from modules.common.mavlink.modules import flight_controller
 from modules.decision import decision_worker
 from worker import queue_wrapper
 from worker import worker_controller
@@ -43,7 +44,7 @@ def simulate_data_merge_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     assert result
     assert orientation is not None
 
-    flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.MOVING
+    flight_mode = flight_controller.FlightController.FlightMode.MOVING
 
     result, odometry = drone_odometry_local.DroneOdometryLocal.create(
         position, orientation, flight_mode

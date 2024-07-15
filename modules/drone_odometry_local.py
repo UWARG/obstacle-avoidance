@@ -1,11 +1,12 @@
 """
-Data structure for local odometry data (local position, orientation, and timestamp)
+Data structure for local odometry data (local position, orientation, 
+flight mode, and timestamp).
 """
 
 import time
-import enum
 
 from .common.mavlink.modules import drone_odometry
+from .common.mavlink.modules import flight_controller
 
 
 class DronePositionLocal:
@@ -44,18 +45,9 @@ class DronePositionLocal:
 
 class DroneOdometryLocal:
     """
-    Data structure combining drone's local position, local orientation
-    and timestamp.
+    Data structure combining drone's local position, local orientation,
+    current flight mode, and timestamp.
     """
-
-    class FlightMode(enum.Enum):
-        """
-        Possible drone flight modes.
-        """
-
-        STOPPED = 0
-        MOVING = 1
-        MANUAL = 2
 
     __create_key = object()
 
@@ -64,7 +56,7 @@ class DroneOdometryLocal:
         cls,
         local_position: DronePositionLocal,
         drone_orientation: drone_odometry.DroneOrientation,
-        flight_mode: FlightMode,
+        flight_mode: flight_controller.FlightController.FlightMode,
     ) -> "tuple[bool, DroneOdometryLocal | None]":
         """
         Combines local odometry data with timestamp
@@ -89,7 +81,7 @@ class DroneOdometryLocal:
         create_key: object,
         local_position: DronePositionLocal,
         drone_orientation: drone_odometry.DroneOrientation,
-        flight_mode: FlightMode,
+        flight_mode: flight_controller.FlightController.FlightMode,
         timestamp: float,
     ) -> None:
         """

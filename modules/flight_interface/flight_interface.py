@@ -69,13 +69,6 @@ class FlightInterface:
         if not result:
             return False, None
 
-        if flight_mode == "LOITER":
-            flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.STOPPED
-        elif flight_mode == "AUTO":
-            flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.MOVING
-        else:
-            flight_mode = drone_odometry_local.DroneOdometryLocal.FlightMode.MANUAL
-
         return drone_odometry_local.DroneOdometryLocal.create(
             local_position, drone_orientation, flight_mode
         )
