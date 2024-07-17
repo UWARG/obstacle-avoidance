@@ -6,7 +6,7 @@ from collections import deque
 
 from .. import decision_command
 from .. import detections_and_odometry
-from ..common.mavlink.modules import flight_controller
+from .. import drone_odometry_local
 
 
 class Decision:
@@ -33,12 +33,12 @@ class Decision:
             current_flight_mode = lidar_scan_and_odometry.odometry.flight_mode
             detections = lidar_scan_and_odometry.detections
 
-            if current_flight_mode == flight_controller.FlightController.FlightMode.STOPPED:
+            if current_flight_mode == drone_odometry_local.FlightMode.STOPPED:
                 for detection in detections:
                     if detection.distance < proximity_limit:
                         return False, None
                 return decision_command.DecisionCommand.create_resume_mission_command()
-            if current_flight_mode == flight_controller.FlightController.FlightMode.MOVING:
+            if current_flight_mode == drone_odometry_local.FlightMode.MOVING:
                 for detection in detections:
                     if detection.distance < proximity_limit:
                         return (

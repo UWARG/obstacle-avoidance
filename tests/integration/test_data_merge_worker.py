@@ -10,7 +10,6 @@ from modules import detections_and_odometry
 from modules import drone_odometry_local
 from modules import lidar_detection
 from modules.common.mavlink.modules import drone_odometry
-from modules.common.mavlink.modules import flight_controller
 from modules.data_merge import data_merge_worker
 from worker import queue_wrapper
 from worker import worker_controller
@@ -45,7 +44,7 @@ def simulate_flight_interface_worker(in_queue: queue_wrapper.QueueWrapper, ident
     assert result
     assert orientation is not None
 
-    flight_mode = flight_controller.FlightController.FlightMode.MOVING
+    flight_mode = drone_odometry_local.FlightMode.MOVING
 
     result, odometry = drone_odometry_local.DroneOdometryLocal.create(
         position, orientation, flight_mode

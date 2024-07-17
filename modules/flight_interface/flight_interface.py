@@ -69,6 +69,8 @@ class FlightInterface:
         if not result:
             return False, None
 
+        flight_mode = drone_odometry_local.FlightMode(flight_mode.value)
+
         return drone_odometry_local.DroneOdometryLocal.create(
             local_position, drone_orientation, flight_mode
         )

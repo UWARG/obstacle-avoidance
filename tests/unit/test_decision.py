@@ -9,7 +9,6 @@ from modules import detections_and_odometry
 from modules import drone_odometry_local
 from modules import lidar_detection
 from modules.common.mavlink.modules import drone_odometry
-from modules.common.mavlink.modules import flight_controller
 from modules.decision import decision
 
 
@@ -54,7 +53,7 @@ def object_within_proximity_limit_while_moving() -> detections_and_odometry.Dete
     assert result
     assert orientation is not None
 
-    flight_mode = flight_controller.FlightController.FlightMode.MOVING
+    flight_mode = drone_odometry_local.FlightMode.MOVING
 
     result, odometry = drone_odometry_local.DroneOdometryLocal.create(
         position, orientation, flight_mode
@@ -95,7 +94,7 @@ def object_within_proximity_limit_while_stopped() -> detections_and_odometry.Det
     assert result
     assert orientation is not None
 
-    flight_mode = flight_controller.FlightController.FlightMode.STOPPED
+    flight_mode = drone_odometry_local.FlightMode.STOPPED
 
     result, odometry = drone_odometry_local.DroneOdometryLocal.create(
         position, orientation, flight_mode
@@ -130,7 +129,7 @@ def object_outside_proximity_limit_while_moving() -> detections_and_odometry.Det
     assert result
     assert orientation is not None
 
-    flight_mode = flight_controller.FlightController.FlightMode.MOVING
+    flight_mode = drone_odometry_local.FlightMode.MOVING
 
     result, odometry = drone_odometry_local.DroneOdometryLocal.create(
         position, orientation, flight_mode
@@ -165,7 +164,7 @@ def object_outside_proximity_limit_while_stopped() -> detections_and_odometry.De
     assert result
     assert orientation is not None
 
-    flight_mode = flight_controller.FlightController.FlightMode.STOPPED
+    flight_mode = drone_odometry_local.FlightMode.STOPPED
 
     result, odometry = drone_odometry_local.DroneOdometryLocal.create(
         position, orientation, flight_mode
