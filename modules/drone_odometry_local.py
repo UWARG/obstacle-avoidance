@@ -7,7 +7,6 @@ import enum
 import time
 
 from .common.mavlink.modules import drone_odometry
-from .common.mavlink.modules import flight_controller
 
 
 class DronePositionLocal:
