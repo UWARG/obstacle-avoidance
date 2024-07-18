@@ -5,21 +5,18 @@ Decision worker integration test.
 import multiprocessing as mp
 import queue
 
-from worker import queue_wrapper
-from worker import worker_controller
-
+from modules import decision_command
+from modules import detections_and_odometry
 from modules import drone_odometry_local
 from modules import lidar_detection
-from modules import detections_and_odometry
-from modules import decision_command
 from modules.common.mavlink.modules import drone_odometry
-from modules.decision import decision
 from modules.decision import decision_worker
+from worker import queue_wrapper
+from worker import worker_controller
 
 # Constants
 QUEUE_MAX_SIZE = 10
 
-INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
 OBJECT_PROXIMITY_LIMIT = 5  # metres
 MAX_HISTORY = 20  # readings
 
@@ -46,7 +43,11 @@ def simulate_data_merge_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
     assert result
     assert orientation is not None
 
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(position, orientation)
+    flight_mode = drone_odometry_local.FlightMode.MOVING
+
+    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
+        position, orientation, flight_mode
+    )
     assert result
     assert odometry is not None
 
@@ -71,7 +72,6 @@ def main() -> int:
     worker = mp.Process(
         target=decision_worker.decision_worker,
         args=(
-            INITIAL_DRONE_STATE,
             OBJECT_PROXIMITY_LIMIT,
             MAX_HISTORY,
             merged_in_queue,

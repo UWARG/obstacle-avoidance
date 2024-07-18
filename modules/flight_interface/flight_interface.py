@@ -65,7 +65,15 @@ class FlightInterface:
 
         drone_orientation = odometry.orientation
 
-        return drone_odometry_local.DroneOdometryLocal.create(local_position, drone_orientation)
+        result, flight_mode = self.controller.get_flight_mode()
+        if not result:
+            return False, None
+
+        flight_mode = drone_odometry_local.FlightMode(flight_mode.value)
+
+        return drone_odometry_local.DroneOdometryLocal.create(
+            local_position, drone_orientation, flight_mode
+        )
 
     def run_decision_handler(self, command: decision_command.DecisionCommand) -> bool:
         """

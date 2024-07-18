@@ -9,7 +9,6 @@ import time
 import yaml
 
 from modules.data_merge import data_merge_worker
-from modules.decision import decision
 from modules.decision import decision_worker
 from modules.detection import detection_worker
 from modules.flight_interface import flight_interface_worker
@@ -58,7 +57,6 @@ def main() -> int:
 
         DELAY = config["data_merge"]["delay"]
 
-        INITIAL_DRONE_STATE = decision.Decision.DroneState.MOVING
         OBJECT_PROXIMITY_LIMIT = config["decision"]["object_proximity_limit"]
         MAX_HISTORY = config["decision"]["max_history"]
         # pylint: enable=invalid-name
@@ -116,7 +114,6 @@ def main() -> int:
     decision_process = mp.Process(
         target=decision_worker.decision_worker,
         args=(
-            INITIAL_DRONE_STATE,
             OBJECT_PROXIMITY_LIMIT,
             MAX_HISTORY,
             merged_to_decision_queue,

@@ -85,6 +85,7 @@ def main() -> int:
             print(f"roll: {str(input_data.drone_orientation.roll)}")
             print(f"pitch: {str(input_data.drone_orientation.pitch)}")
             print(f"yaw: {str(input_data.drone_orientation.yaw)}")
+            print(f"flight mode: {str(input_data.flight_mode)}")
             print(f"timestamp: {str(input_data.timestamp)}")
             print("")
 

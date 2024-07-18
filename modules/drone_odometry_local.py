@@ -1,7 +1,9 @@
 """
-Data structure for local odometry data (local position, orientation, and timestamp)
+Data structure for local odometry data (local position, orientation, 
+flight mode, and timestamp).
 """
 
+import enum
 import time
 
 from .common.mavlink.modules import drone_odometry
@@ -41,17 +43,30 @@ class DronePositionLocal:
         return f"{self.__class__}: North: {self.north}, East: {self.east}, Down: {self.down}."
 
 
+class FlightMode(enum.Enum):
+    """
+    Possible drone flight modes.
+    """
+
+    STOPPED = drone_odometry.FlightMode.STOPPED.value
+    MOVING = drone_odometry.FlightMode.MOVING.value
+    MANUAL = drone_odometry.FlightMode.MANUAL.value
+
+
 class DroneOdometryLocal:
     """
-    Data structure combining drone's local position, local orientation
-    and timestamp.
+    Data structure combining drone's local position, local orientation,
+    current flight mode, and timestamp.
     """
 
     __create_key = object()
 
     @classmethod
     def create(
-        cls, local_position: DronePositionLocal, drone_orientation: drone_odometry.DroneOrientation
+        cls,
+        local_position: DronePositionLocal,
+        drone_orientation: drone_odometry.DroneOrientation,
+        flight_mode: FlightMode,
     ) -> "tuple[bool, DroneOdometryLocal | None]":
         """
         Combines local odometry data with timestamp
@@ -62,10 +77,13 @@ class DroneOdometryLocal:
         if drone_orientation is None:
             return False, None
 
+        if flight_mode is None:
+            return False, None
+
         timestamp = time.time()
 
         return True, DroneOdometryLocal(
-            cls.__create_key, local_position, drone_orientation, timestamp
+            cls.__create_key, local_position, drone_orientation, flight_mode, timestamp
         )
 
     def __init__(
@@ -73,6 +91,7 @@ class DroneOdometryLocal:
         create_key: object,
         local_position: DronePositionLocal,
         drone_orientation: drone_odometry.DroneOrientation,
+        flight_mode: FlightMode,
         timestamp: float,
     ) -> None:
         """
@@ -82,8 +101,8 @@ class DroneOdometryLocal:
         assert create_key is DroneOdometryLocal.__create_key, "Use create() method"
 
         self.local_position = local_position
-        self.local_position = local_position
         self.drone_orientation = drone_orientation
+        self.flight_mode = flight_mode
         self.timestamp = timestamp
 
     def __str__(self) -> str:
@@ -93,4 +112,4 @@ class DroneOdometryLocal:
         return f"{self.__class__},\
             {self.local_position}, \
                 DroneOrientation: Roll: {self.drone_orientation.roll}, Pitch: {self.drone_orientation.pitch}, Yaw: {self.drone_orientation.yaw}.\
-                    Time: {self.timestamp}."
+                    Flight mode: {self.flight_mode}. Time: {self.timestamp}."
