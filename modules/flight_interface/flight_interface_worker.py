@@ -6,6 +6,7 @@ import time
 import queue
 
 from modules import decision_command
+from modules import drone_odometry_local
 from worker import queue_wrapper
 from worker import worker_controller
 from . import flight_interface
@@ -39,6 +40,9 @@ def flight_interface_worker(
 
         result, value = interface.run()
         if result:
+            if value.flight_mode == drone_odometry_local.FlightMode.MANUAL:
+                controller.request_exit()
+                break
             odometry_out_queue.queue.put(value)
 
         try:
