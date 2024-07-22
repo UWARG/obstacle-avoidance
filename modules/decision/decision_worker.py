@@ -8,6 +8,7 @@ from worker import worker_controller
 from . import decision
 
 
+# pylint: disable=useless-return
 def decision_worker(
     object_proximity_limit: float,
     max_history: int,
@@ -38,3 +39,5 @@ def decision_worker(
 
         print(f"Decision: Command sent: {value.command}")
         command_out_queue.queue.put(value)
+
+    return

@@ -13,6 +13,7 @@ from modules import drone_odometry_local
 from modules import lidar_detection
 
 
+# pylint: disable=useless-return
 def data_merge_worker(
     delay: float,
     detection_input_queue: queue_wrapper.QueueWrapper,
@@ -52,3 +53,5 @@ def data_merge_worker(
 
         detections = []
         output_queue.queue.put(merged)
+
+    return

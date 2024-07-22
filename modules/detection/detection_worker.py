@@ -7,6 +7,7 @@ from worker import worker_controller
 from . import detection
 
 
+# pylint: disable=useless-return
 def detection_worker(
     serial_port_name: str,
     serial_port_baudrate: int,
@@ -47,3 +48,5 @@ def detection_worker(
             continue
 
         output_queue.queue.put(value)
+
+    return
