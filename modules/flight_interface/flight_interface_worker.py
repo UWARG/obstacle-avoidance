@@ -42,7 +42,7 @@ def flight_interface_worker(
         if result:
             if value.flight_mode == drone_odometry_local.FlightMode.MANUAL:
                 controller.request_exit()
-                break
+                return
             odometry_out_queue.queue.put(value)
 
         try:
@@ -53,3 +53,5 @@ def flight_interface_worker(
             continue
 
         result = interface.run_decision_handler(command)
+
+    return
