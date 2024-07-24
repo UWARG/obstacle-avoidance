@@ -27,7 +27,7 @@ class Decision:
         self,
         detections_and_odometries: "deque[detections_and_odometry.DetectionsAndOdometry]",
         proximity_limit: float,
-        current_flight_mode,
+        current_flight_mode: drone_odometry_local.FlightMode,
     ) -> "tuple[bool, decision_command.DecisionCommand | None]":
         """
         Runs simple collision avoidance where drone will stop within a set distance of an object.

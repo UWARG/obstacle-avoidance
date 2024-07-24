@@ -251,7 +251,7 @@ class TestDecision:
         decision_maker: decision.Decision,
         object_within_proximity_limit_while_moving: detections_and_odometry.DetectionsAndOdometry,
         object_outside_proximity_limit_while_stopped: detections_and_odometry.DetectionsAndOdometry,
-    ):
+    ) -> None:
         """
         Test decision module when the drone should continue after it has been stopped.
         """
@@ -272,7 +272,7 @@ class TestDecision:
         decision_maker: decision.Decision,
         object_outside_proximity_limit_while_stopped: detections_and_odometry.DetectionsAndOdometry,
         object_within_proximity_limit_while_moving: detections_and_odometry.DetectionsAndOdometry,
-    ):
+    ) -> None:
         """
         Test decision module when the drone should continue after it has been stopped.
         """
@@ -294,7 +294,7 @@ class TestDecision:
         object_within_proximity_limit_while_moving: detections_and_odometry.DetectionsAndOdometry,
         object_outside_proximity_limit_while_stopped: detections_and_odometry.DetectionsAndOdometry,
         object_outside_proximity_limit_while_moving: detections_and_odometry.DetectionsAndOdometry,
-    ):
+    ) -> None:
         """
         Test decision module by simulating a flight test.
         """
