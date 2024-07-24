@@ -25,6 +25,14 @@ class DecisionCommand:
         STOP_MISSION_AND_HALT = 0
         RESUME_MISSION = 1
 
+    class CommandRequest(enum.Enum):
+        """
+        Valid command requests.
+        """
+
+        REQUEST_STOP_MISSION_AND_HALT = 0
+        REQUEST_RESUME_MISSION = 1
+
     @classmethod
     def create_stop_mission_and_halt_command(cls) -> "tuple[bool, DecisionCommand | None]":
         """
