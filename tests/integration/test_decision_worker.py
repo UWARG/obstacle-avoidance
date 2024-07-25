@@ -19,7 +19,7 @@ QUEUE_MAX_SIZE = 10
 
 OBJECT_PROXIMITY_LIMIT = 5  # metres
 MAX_HISTORY = 20  # readings
-COMMAND_TIMEOUT = 1.0 # seconds
+COMMAND_TIMEOUT = 1.0  # seconds
 
 # pylint: disable=duplicate-code
 

@@ -44,7 +44,9 @@ class Decision:
             if self.__command_requested:
                 if start_time - time.time() > self.command_timeout:
                     if self.__last_command_sent == drone_odometry_local.FlightMode.STOPPED:
-                        return decision_command.DecisionCommand.create_stop_mission_and_halt_command()
+                        return (
+                            decision_command.DecisionCommand.create_stop_mission_and_halt_command()
+                        )
                     if self.__last_command_sent == drone_odometry_local.FlightMode.MOVING:
                         return decision_command.DecisionCommand.create_resume_mission_command()
                 continue
@@ -58,7 +60,7 @@ class Decision:
                 self.detections_and_odometries.clear()
                 start_time = time.time()
                 return decision_command.DecisionCommand.create_resume_mission_command()
-            
+
             if current_flight_mode == drone_odometry_local.FlightMode.MOVING:
                 for detection in detections:
                     if detection.distance < proximity_limit:
