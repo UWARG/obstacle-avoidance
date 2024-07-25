@@ -11,6 +11,7 @@ from . import decision
 def decision_worker(
     object_proximity_limit: float,
     max_history: int,
+    command_timeout: float,
     merged_in_queue: queue_wrapper.QueueWrapper,
     command_out_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
@@ -23,7 +24,7 @@ def decision_worker(
     controller is how the main process communicates to this worker process.
     """
 
-    decider = decision.Decision(object_proximity_limit, max_history)
+    decider = decision.Decision(object_proximity_limit, max_history, command_timeout)
 
     while not controller.is_exit_requested():
         controller.check_pause()

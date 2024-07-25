@@ -19,6 +19,7 @@ QUEUE_MAX_SIZE = 10
 
 OBJECT_PROXIMITY_LIMIT = 5  # metres
 MAX_HISTORY = 20  # readings
+COMMAND_TIMEOUT = 1.0 # seconds
 
 # pylint: disable=duplicate-code
 
@@ -74,6 +75,7 @@ def main() -> int:
         args=(
             OBJECT_PROXIMITY_LIMIT,
             MAX_HISTORY,
+            COMMAND_TIMEOUT,
             merged_in_queue,
             command_out_queue,
             controller,

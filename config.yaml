@@ -20,6 +20,7 @@ data_merge:
     delay: 0.1 # seconds
 
 decision:
-    object_proximity_limit: 10 # metres
+    object_proximity_limit: 10.0 # metres
     max_history: 80
+    command_timeout: 1.0 # seconds
 

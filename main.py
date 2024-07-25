@@ -59,6 +59,7 @@ def main() -> int:
 
         OBJECT_PROXIMITY_LIMIT = config["decision"]["object_proximity_limit"]
         MAX_HISTORY = config["decision"]["max_history"]
+        COMMAND_TIMEOUT = config["decision"]["command_timeout"]
         # pylint: enable=invalid-name
     except KeyError:
         print("Config key(s) not found.")
@@ -116,6 +117,7 @@ def main() -> int:
         args=(
             OBJECT_PROXIMITY_LIMIT,
             MAX_HISTORY,
+            COMMAND_TIMEOUT,
             merged_to_decision_queue,
             command_to_flight_interface_queue,
             controller,

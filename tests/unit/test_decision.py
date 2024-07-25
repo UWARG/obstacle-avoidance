@@ -14,6 +14,7 @@ from modules.decision import decision
 
 OBJECT_PROXIMITY_LIMIT = 5.0  # metres
 MAX_HISTORY = 20  # readings
+COMMAND_TIMEOUT = 1.0 # seconds
 
 # pylint: disable=redefined-outer-name, duplicate-code
 
@@ -23,7 +24,7 @@ def decision_maker() -> decision.Decision:  # type: ignore
     """
     Construct a decision instance with predefined object proximity limit.
     """
-    decision_instance = decision.Decision(OBJECT_PROXIMITY_LIMIT, MAX_HISTORY)
+    decision_instance = decision.Decision(OBJECT_PROXIMITY_LIMIT, MAX_HISTORY, COMMAND_TIMEOUT)
     yield decision_instance
 
 
