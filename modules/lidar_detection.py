@@ -17,7 +17,7 @@ class LidarDetection:
         y is in meters.
         """
         return True, LidarDetection(cls.__create_key, x, y)
-    
+
     def __init__(self, create_key: object, x: float, y: float) -> None:
         """
         Private constructor, use create() method.

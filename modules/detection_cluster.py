@@ -4,6 +4,7 @@ LiDAR detection cluster data structure.
 
 from . import lidar_detection
 
+
 class DetectionCluster:
     """
     Cluster of LiDAR detections.
@@ -12,13 +13,17 @@ class DetectionCluster:
     __create_key = object()
 
     @classmethod
-    def create(cls, detections: "list[lidar_detection.LidarDetection]") -> "tuple[bool, DetectionCluster | None]":
+    def create(
+        cls, detections: "list[lidar_detection.LidarDetection]"
+    ) -> "tuple[bool, DetectionCluster | None]":
         """
         Combines lidar readings in close proximity.
         """
         return True, DetectionCluster(cls.__create_key, detections)
-    
-    def __init__(self, create_key: object, detections: "list[lidar_detection.LidarDetection]") -> None:
+
+    def __init__(
+        self, create_key: object, detections: "list[lidar_detection.LidarDetection]"
+    ) -> None:
         """
         Private constructor, use create() method.
         """
