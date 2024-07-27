@@ -11,16 +11,16 @@ detection:
     serial_port_name: "/dev/ttyACM0"
     serial_port_baudrate: 921600
     port_timeout: 0.1 # seconds
-    update_rate: 5
-    high_angle: 170 # degrees
-    low_angle: -170 # degrees
-    rotate_speed: 5
+    update_rate: 3
+    low_angle: -90 # degrees
+    high_angle: 90 # degrees
+    rotate_speed: 8
 
 data_merge:
     delay: 0.1 # seconds
 
 decision:
     object_proximity_limit: 10.0 # metres
-    max_history: 80
-    command_timeout: 1.0 # seconds
+    max_history: 50
+    command_timeout: 0.5 # seconds
 

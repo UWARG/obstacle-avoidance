@@ -41,6 +41,7 @@ def flight_interface_worker(
         result, value = interface.run()
         if result:
             if value.flight_mode == drone_odometry_local.FlightMode.MANUAL:
+                print("obstacle avoidance disconnected.")
                 controller.request_exit()
                 break
             odometry_out_queue.queue.put(value)

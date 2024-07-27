@@ -34,8 +34,8 @@ def detection_worker(
         serial_port_baudrate,
         port_timeout,
         update_rate,
-        high_angle,
         low_angle,
+        high_angle,
         rotate_speed,
     )
 
