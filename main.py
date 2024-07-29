@@ -51,8 +51,8 @@ def main() -> int:
         SERIAL_PORT_BAUDRATE = config["detection"]["serial_port_baudrate"]
         PORT_TIMEOUT = config["detection"]["port_timeout"]
         UPDATE_RATE = config["detection"]["update_rate"]
-        HIGH_ANGLE = config["detection"]["high_angle"]
         LOW_ANGLE = config["detection"]["low_angle"]
+        HIGH_ANGLE = config["detection"]["high_angle"]
         ROTATE_SPEED = config["detection"]["rotate_speed"]
 
         DELAY = config["data_merge"]["delay"]
@@ -93,8 +93,8 @@ def main() -> int:
             SERIAL_PORT_BAUDRATE,
             PORT_TIMEOUT,
             UPDATE_RATE,
-            HIGH_ANGLE,
             LOW_ANGLE,
+            HIGH_ANGLE,
             ROTATE_SPEED,
             detection_to_data_merge_queue,
             controller,

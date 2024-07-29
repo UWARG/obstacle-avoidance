@@ -12,8 +12,8 @@ detection:
     serial_port_baudrate: 921600
     port_timeout: 0.1 # seconds
     update_rate: 5
-    high_angle: 170 # degrees
     low_angle: -170 # degrees
+    high_angle: 170 # degrees
     rotate_speed: 5
 
 data_merge:
