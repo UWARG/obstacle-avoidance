@@ -5,15 +5,13 @@ LiDAR detection data structure.
 
 class LidarDetection:
     """
-    Lidar scan containing point relative to drone's position.
+    Lidar scan.
     """
 
     __create_key = object()
 
     @classmethod
-    def create(
-        cls, distance: float, angle: float
-    ) -> "tuple[bool, LidarDetection | None]":
+    def create(cls, distance: float, angle: float) -> "tuple[bool, LidarDetection | None]":
         """
         distance is in metres.
         angle is in degrees.
@@ -22,9 +20,7 @@ class LidarDetection:
             return False, None
         return True, LidarDetection(cls.__create_key, distance, angle)
 
-    def __init__(
-        self, create_key: object, distance: float, angle: float
-    ) -> None:
+    def __init__(self, create_key: object, distance: float, angle: float) -> None:
         """
         Private constructor, use create() method.
         """
