@@ -15,7 +15,7 @@ class DetectionCluster:
     @classmethod
     def create(
         cls, detections: "list[lidar_detection.LidarDetection]"
-    ) -> "tuple[bool, DetectionCluster | None]":
+    ) -> "tuple[bool, DetectionCluster]":
         """
         Combines lidar readings in close proximity.
         """
