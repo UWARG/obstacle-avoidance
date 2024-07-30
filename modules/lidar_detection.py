@@ -12,21 +12,18 @@ class LidarDetection:
 
     @classmethod
     def create(
-        cls, distance: float, angle: float, x: float, y: float
+        cls, distance: float, angle: float
     ) -> "tuple[bool, LidarDetection | None]":
         """
         distance is in metres.
         angle is in degrees.
-        (x, y) are the coordinates of the LiDAR scan relative to the drone's position.
-        x is in meters.
-        y is in meters.
         """
         if distance == -1:
             return False, None
-        return True, LidarDetection(cls.__create_key, distance, angle, x, y)
+        return True, LidarDetection(cls.__create_key, distance, angle)
 
     def __init__(
-        self, create_key: object, distance: float, angle: float, x: float, y: float
+        self, create_key: object, distance: float, angle: float
     ) -> None:
         """
         Private constructor, use create() method.
@@ -35,11 +32,9 @@ class LidarDetection:
 
         self.distance = distance
         self.angle = angle
-        self.x = x
-        self.y = y
 
     def __str__(self) -> str:
         """
         String representation.
         """
-        return f"{self.__class__.__name__}: distance: {self.distance}, angle: {self.angle}, x: {self.x}, y: {self.y}. "
+        return f"{self.__class__.__name__}: distance: {self.distance}, angle: {self.angle}. "
