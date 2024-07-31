@@ -9,6 +9,7 @@ from modules.clustering import clustering
 
 MAX_CLUSTER_DISTANCE = 0.5  # metres
 
+# pylint: disable=redefined-outer-name
 
 @pytest.fixture()
 def clustering_maker() -> clustering.Clustering:  # type: ignore
