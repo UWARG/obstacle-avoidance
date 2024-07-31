@@ -14,7 +14,7 @@ class Clustering:
     Groups together LiDAR detections into clusters.
     """
 
-    def __init__(self, max_cluster_distance: float):
+    def __init__(self, max_cluster_distance: float) -> None:
         """
         Initialize max distance between points in the same cluster.
         """
