@@ -25,6 +25,8 @@ class FlightInterface:
         """
         address: TCP address or port.
         timeout_home: Timeout for home location in seconds.
+        first_waypoint_distance_tolerance: flight interface can send commands after the drone has been within this
+                                           set distance from the first waypoint (in metres).
         """
         result, controller = flight_controller.FlightController.create(address)
         if not result:
@@ -38,11 +40,17 @@ class FlightInterface:
         if not result:
             return False, None
 
+        result, first_waypoint_local = conversions.position_global_to_local(
+            first_waypoint, home_location
+        )
+        if not result:
+            return False, None
+
         return True, FlightInterface(
             cls.__create_key,
             controller,
             home_location,
-            first_waypoint,
+            first_waypoint_local,
             first_waypoint_distance_tolerance,
         )
 
@@ -51,7 +59,7 @@ class FlightInterface:
         create_key: object,
         controller: flight_controller.FlightController,
         home_location: drone_odometry.DronePosition,
-        first_waypoint: drone_odometry.DroneWaypoint,
+        first_waypoint: drone_odometry_local.DronePositionLocal,
         first_waypoint_distance_tolerance: float,
     ) -> None:
         """
@@ -66,11 +74,16 @@ class FlightInterface:
         self.first_waypoint_distance_tolerance = first_waypoint_distance_tolerance
         self.__run = False
 
-    def __distance_to_first_waypoint(self, global_position: drone_odometry.DronePosition) -> float:
-        delta_x = global_position.latitude - self.first_waypoint.latitude
-        delta_y = global_position.longitude - self.first_waypoint.longitude
-        delta_z = global_position.altitude - self.first_waypoint.altitude
-        return math.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
+    def __distance_to_first_waypoint_squared(
+        self, local_position: drone_odometry_local.DronePositionLocal
+    ) -> float:
+        """
+        Calculates the current distance in metres to the first waypoint (value is squared).
+        """
+        delta_x = local_position.north - self.first_waypoint.north
+        delta_y = local_position.east - self.first_waypoint.east
+        delta_z = local_position.down - self.first_waypoint.down
+        return delta_x**2 + delta_y**2 + delta_z**2
 
     def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
@@ -96,8 +109,13 @@ class FlightInterface:
 
         flight_mode = drone_odometry_local.FlightMode(flight_mode.value)
 
-        distance_to_first_waypoint = self.__distance_to_first_waypoint(global_position)
-        if distance_to_first_waypoint < self.first_waypoint_distance_tolerance:
+        distance_to_first_waypoint_squared = self.__distance_to_first_waypoint_squared(
+            local_position
+        )
+        if (
+            not self.__run
+            and distance_to_first_waypoint_squared < self.first_waypoint_distance_tolerance**2
+        ):
             self.__run = True
             print("obstacle avoidance started!")
 

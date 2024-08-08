@@ -6,6 +6,7 @@ flight_interface:
     address: "/dev/ttyUSB0"
     timeout: 10.0 # seconds
     worker_period: 0.1 # seconds
+    first_waypoint_distance_tolerance: 1.0 # metres
 
 detection:
     serial_port_name: "/dev/ttyACM0"

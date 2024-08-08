@@ -46,6 +46,9 @@ def main() -> int:
         FLIGHT_INTERFACE_ADDRESS = config["flight_interface"]["address"]
         FLIGHT_INTERFACE_TIMEOUT = config["flight_interface"]["timeout"]
         FLIGHT_INTERFACE_WORKER_PERIOD = config["flight_interface"]["worker_period"]
+        FIRST_WAYPOINT_DISTANCE_TOLERANCE = config["flight_interface"][
+            "first_waypoint_distance_tolerance"
+        ]
 
         SERIAL_PORT_NAME = config["detection"]["serial_port_name"]
         SERIAL_PORT_BAUDRATE = config["detection"]["serial_port_baudrate"]
@@ -79,6 +82,7 @@ def main() -> int:
         args=(
             FLIGHT_INTERFACE_ADDRESS,
             FLIGHT_INTERFACE_TIMEOUT,
+            FIRST_WAYPOINT_DISTANCE_TOLERANCE,
             FLIGHT_INTERFACE_WORKER_PERIOD,
             command_to_flight_interface_queue,
             flight_interface_to_data_merge_queue,
