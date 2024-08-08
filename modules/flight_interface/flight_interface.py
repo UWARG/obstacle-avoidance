@@ -66,7 +66,7 @@ class FlightInterface:
         self.first_waypoint_distance_tolerance = first_waypoint_distance_tolerance
         self.__run = False
 
-    def __distance_to_first_waypoint(self, global_position: drone_odometry.DronePosition):
+    def __distance_to_first_waypoint(self, global_position: drone_odometry.DronePosition) -> float:
         delta_x = global_position.latitude - self.first_waypoint.latitude
         delta_y = global_position.longitude - self.first_waypoint.longitude
         delta_z = global_position.altitude - self.first_waypoint.altitude
