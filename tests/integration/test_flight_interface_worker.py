@@ -18,6 +18,7 @@ QUEUE_MAX_SIZE = 10
 FLIGHT_INTERFACE_ADDRESS = "tcp:127.0.0.1:14550"
 FLIGHT_INTERFACE_TIMEOUT = 10.0
 FLIGHT_INTERFACE_WORKER_PERIOD = 0.1
+FIRST_WAYPOINT_DISTANCE_TOLERANCE = 1.0  # metres
 
 
 def simulate_decision_worker(in_queue: queue_wrapper.QueueWrapper) -> None:
@@ -53,6 +54,7 @@ def main() -> int:
         args=(
             FLIGHT_INTERFACE_ADDRESS,
             FLIGHT_INTERFACE_TIMEOUT,
+            FIRST_WAYPOINT_DISTANCE_TOLERANCE,
             FLIGHT_INTERFACE_WORKER_PERIOD,
             command_in_queue,
             odometry_out_queue,
@@ -79,9 +81,11 @@ def main() -> int:
             assert input_data.local_position is not None
             assert input_data.drone_orientation is not None
 
+            print("odometry:")
             print(f"north: {str(input_data.local_position.north)}")
             print(f"east: {str(input_data.local_position.east)}")
             print(f"down: {str(input_data.local_position.down)}")
+            print("orientation:")
             print(f"roll: {str(input_data.drone_orientation.roll)}")
             print(f"pitch: {str(input_data.drone_orientation.pitch)}")
             print(f"yaw: {str(input_data.drone_orientation.yaw)}")
