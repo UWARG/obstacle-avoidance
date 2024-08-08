@@ -19,7 +19,9 @@ class FlightInterface:
     __create_key = object()
 
     @classmethod
-    def create(cls, address: str, timeout_home: float, first_waypoint_distance_tolerance: float) -> "tuple[bool, FlightInterface | None]":
+    def create(
+        cls, address: str, timeout_home: float, first_waypoint_distance_tolerance: float
+    ) -> "tuple[bool, FlightInterface | None]":
         """
         address: TCP address or port.
         timeout_home: Timeout for home location in seconds.
@@ -31,12 +33,18 @@ class FlightInterface:
         result, home_location = controller.get_home_location(timeout_home)
         if not result:
             return False, None
-        
+
         result, first_waypoint = controller.get_next_waypoint()
         if not result:
             return False, None
 
-        return True, FlightInterface(cls.__create_key, controller, home_location, first_waypoint, first_waypoint_distance_tolerance)
+        return True, FlightInterface(
+            cls.__create_key,
+            controller,
+            home_location,
+            first_waypoint,
+            first_waypoint_distance_tolerance,
+        )
 
     def __init__(
         self,
@@ -62,8 +70,7 @@ class FlightInterface:
         delta_x = global_position.latitude - self.first_waypoint.latitude
         delta_y = global_position.longitude - self.first_waypoint.longitude
         delta_z = global_position.altitude - self.first_waypoint.altitude
-        return math.sqrt(delta_x ** 2 + delta_y ** 2 + delta_z ** 2)
-
+        return math.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
 
     def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
