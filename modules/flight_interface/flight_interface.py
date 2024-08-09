@@ -44,6 +44,13 @@ class FlightInterface:
         if not result:
             return False, None
 
+        print("Flight interface successfully initialized.")
+        print(f"Home location: {home_location}")
+        print(f"First waypoint: {first_waypoint}")
+        print(
+            f"Obstacle avoidance will start {first_waypoint_distance_tolerance}m from first waypoint."
+        )
+
         return True, FlightInterface(
             cls.__create_key,
             controller,
