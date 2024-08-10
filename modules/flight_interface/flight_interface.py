@@ -114,15 +114,13 @@ class FlightInterface:
 
         flight_mode = drone_odometry_local.FlightMode(flight_mode.value)
 
-        distance_to_first_waypoint_squared = self.__distance_to_first_waypoint_squared(
-            local_position
-        )
-        if (
-            not self.__run
-            and distance_to_first_waypoint_squared < self.first_waypoint_distance_tolerance**2
-        ):
-            self.__run = True
-            print("obstacle avoidance started!")
+        if not self.__run:
+            distance_to_first_waypoint_squared = self.__distance_to_first_waypoint_squared(
+                local_position
+            )
+            if distance_to_first_waypoint_squared <= self.first_waypoint_distance_tolerance**2:
+                self.__run = True
+                print("obstacle avoidance started!")
 
         return drone_odometry_local.DroneOdometryLocal.create(
             local_position, drone_orientation, flight_mode
