@@ -2,6 +2,8 @@
 Creates flight controller and produces local drone odometry coupled with a timestamp.
 """
 
+import math
+
 from modules import decision_command
 from modules import drone_odometry_local
 from ..common.mavlink.modules import drone_odometry
@@ -12,6 +14,7 @@ from . import conversions
 class FlightInterface:
     """
     Create flight controller and sets home location.
+    To initialize flight interface, at least one waypoint must be set and written to the drone.
     """
 
     __create_key = object()
@@ -36,6 +39,7 @@ class FlightInterface:
 
         result, first_waypoint = controller.get_next_waypoint()
         if not result:
+            print('Error initializing flight interface: check waypoints are loaded.')
             return False, None
 
         result, first_waypoint_local = conversions.position_global_to_local(
@@ -87,8 +91,7 @@ class FlightInterface:
         """
         delta_x = local_position.north - self.first_waypoint.north
         delta_y = local_position.east - self.first_waypoint.east
-        delta_z = local_position.down - self.first_waypoint.down
-        return delta_x**2 + delta_y**2 + delta_z**2
+        return delta_x**2 + delta_y**2
 
     def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
         """
@@ -118,9 +121,10 @@ class FlightInterface:
             distance_to_first_waypoint_squared = self.__distance_to_first_waypoint_squared(
                 local_position
             )
+            print(f"Distance to first waypoint: {math.sqrt(distance_to_first_waypoint_squared)}m.")
             if distance_to_first_waypoint_squared <= self.first_waypoint_distance_tolerance**2:
                 self.__run = True
-                print("obstacle avoidance started!")
+                print("Obstacle avoidance started!")
 
         return drone_odometry_local.DroneOdometryLocal.create(
             local_position, drone_orientation, flight_mode
