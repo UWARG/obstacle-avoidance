@@ -39,7 +39,7 @@ class FlightInterface:
 
         result, first_waypoint = controller.get_next_waypoint()
         if not result:
-            print('Error initializing flight interface: check waypoints are loaded.')
+            print("Error initializing flight interface: check waypoints are loaded.")
             return False, None
 
         result, first_waypoint_local = conversions.position_global_to_local(
