@@ -15,6 +15,7 @@ from . import flight_interface
 def flight_interface_worker(
     address: str,
     timeout: float,
+    first_waypoint_distance_tolerance: float,
     period: float,
     command_in_queue: queue_wrapper.QueueWrapper,
     odometry_out_queue: queue_wrapper.QueueWrapper,
@@ -29,7 +30,9 @@ def flight_interface_worker(
     controller is how the main process communicates to this worker process.
     """
 
-    result, interface = flight_interface.FlightInterface.create(address, timeout)
+    result, interface = flight_interface.FlightInterface.create(
+        address, timeout, first_waypoint_distance_tolerance
+    )
     if not result:
         return
 
@@ -41,6 +44,7 @@ def flight_interface_worker(
         result, value = interface.run()
         if result:
             if value.flight_mode == drone_odometry_local.FlightMode.MANUAL:
+                print("Obstacle avoidance killed. Check flight mode.")
                 controller.request_exit()
                 break
             odometry_out_queue.queue.put(value)
