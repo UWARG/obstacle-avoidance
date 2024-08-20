@@ -22,9 +22,6 @@ class ObstaclesAndOdometry:
         """
         Combines obstacles with local odometry.
         """
-        if len(obstacles) == 0:
-            return False, None
-
         if local_odometry is None:
             return False, None
 
