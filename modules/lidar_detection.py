@@ -13,9 +13,10 @@ class LidarDetection:
     @classmethod
     def create(cls, distance: float, angle: float) -> "tuple[bool, LidarDetection | None]":
         """
-        distance is in metres.
-        angle is in degrees.
+        Distance is in metres.
+        Angle is in degrees.
         """
+        # lidar_driver.py returns -1 for an invalid LiDAR reading.
         if distance == -1:
             return False, None
         return True, LidarDetection(cls.__create_key, distance, angle)
