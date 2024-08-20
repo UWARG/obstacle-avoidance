@@ -13,7 +13,7 @@ class DetectionPoint:
     @classmethod
     def create(cls, x: float, y: float) -> "tuple[bool, DetectionPoint]":
         """
-        (x, y) are the local coordinates of the LiDAR detection relative to the drone's position.
+        (x, y) are the local NED coordinates of the LiDAR detection relative to the drone's home position.
         x is the x-coordinate of the LiDAR detection in metres.
         y is the y-coordinate of the LiDAR detection in metres.
         """
