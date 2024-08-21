@@ -73,10 +73,12 @@ class Clustering:
 
         # if far enough, send current cluster, initialize new one
         if distance_from_last_point > self.max_cluster_distance or direction_switched:
-            new_cluster = detection_cluster.DetectionCluster.create(self.cluster)
+            result, new_cluster = detection_cluster.DetectionCluster.create(self.cluster)
+            if not result:
+                return False, None
             self.cluster = []
             self.cluster.append(point)
-            return new_cluster
+            return True, new_cluster
 
         # if close enough, cluster together
         self.cluster.append(point)
