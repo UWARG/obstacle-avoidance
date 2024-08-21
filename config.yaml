@@ -17,7 +17,11 @@ detection:
     high_angle: 170 # degrees
     rotate_speed: 5
 
+clustering:
+    max_cluster_distance: 0.2 # metres
+
 data_merge:
+    merge_data_type: "OBSTACLES" # "OBSTACLES" or "DETECTIONS"
     delay: 0.1 # seconds
 
 decision:

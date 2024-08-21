@@ -8,6 +8,7 @@ import time
 from .. import decision_command
 from .. import detections_and_odometry
 from .. import drone_odometry_local
+from .. import obstacles_and_odometry
 
 
 class Decision:
@@ -20,14 +21,14 @@ class Decision:
         Initialize current drone state and its lidar detections list.
         """
         self.proximity_limit = proximity_limit
-        self.detections_and_odometries = deque(maxlen=max_history)
+        self.merged_odometries = deque(maxlen=max_history)
         self.command_timeout = command_timeout
         self.__command_requested = False
         self.__last_command_sent = None
 
     def run_simple_decision(
         self,
-        detections_and_odometries: "deque[detections_and_odometry.DetectionsAndOdometry]",
+        merged_odometries: "deque[detections_and_odometry.DetectionsAndOdometry]",
         proximity_limit: float,
         current_flight_mode: drone_odometry_local.FlightMode,
     ) -> "tuple[bool, decision_command.DecisionCommand | None]":
@@ -35,7 +36,7 @@ class Decision:
         Runs simple collision avoidance where drone will stop within a set distance of an object.
         """
         start_time = 0
-        for lidar_scan_and_odometry in detections_and_odometries:
+        for lidar_scan_and_odometry in merged_odometries:
             detections = lidar_scan_and_odometry.detections
 
             if self.__command_requested and self.__last_command_sent == current_flight_mode:
@@ -73,14 +74,29 @@ class Decision:
                         )
         return False, None
 
+    def run_obstacle_avoidance(
+        self, obstacles: "deque[obstacles_and_odometry.ObstaclesAndOdometry]"
+    ) -> "tuple[False, None]":
+        """
+        Run obstacle avoidance algorithm.
+        """
+        # TODO
+        print(obstacles)
+        return False, None
+
     def run(
-        self, merged_data: detections_and_odometry.DetectionsAndOdometry
+        self,
+        merged_data: "detections_and_odometry.DetectionsAndOdometry | obstacles_and_odometry.ObstaclesAndOdometry",
     ) -> "tuple[bool, decision_command.DecisionCommand | None]":
         """
         Run obstacle avoidance.
         """
         current_flight_mode = merged_data.odometry.flight_mode
-        self.detections_and_odometries.append(merged_data)
-        return self.run_simple_decision(
-            self.detections_and_odometries, self.proximity_limit, current_flight_mode
-        )
+        self.merged_odometries.append(merged_data)
+        if str(type(merged_data)) == "<class 'detections_and_odometry.DetectionsAndOdometry'>":
+            return self.run_simple_decision(
+                self.merged_odometries, self.proximity_limit, current_flight_mode
+            )
+        if str(type(merged_data)) == "<class 'obstacles_and_odometry.ObstaclesAndOdometry'>":
+            return self.run_obstacle_avoidance(self.merged_odometries)
+        return False, None

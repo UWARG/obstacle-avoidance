@@ -8,6 +8,7 @@ import time
 
 import yaml
 
+from modules.clustering import clustering_worker
 from modules.data_merge import data_merge_worker
 from modules.decision import decision_worker
 from modules.detection import detection_worker
@@ -58,6 +59,9 @@ def main() -> int:
         HIGH_ANGLE = config["detection"]["high_angle"]
         ROTATE_SPEED = config["detection"]["rotate_speed"]
 
+        MAX_CLUSTER_DISTANCE = config["clustering"]["max_cluster_distance"]
+
+        MERGE_DATA_TYPE = config["data_merge"]["merge_data_type"]
         DELAY = config["data_merge"]["delay"]
 
         OBJECT_PROXIMITY_LIMIT = config["decision"]["object_proximity_limit"]
@@ -74,6 +78,11 @@ def main() -> int:
 
     flight_interface_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
     detection_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    detection_to_clustering_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    clustering_to_cluster_classification_queue = queue_wrapper.QueueWrapper(
+        mp_manager, QUEUE_MAX_SIZE
+    )
+    obstacle_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
     merged_to_decision_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
     command_to_flight_interface_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
@@ -101,15 +110,30 @@ def main() -> int:
             HIGH_ANGLE,
             ROTATE_SPEED,
             detection_to_data_merge_queue,
+            detection_to_clustering_queue,
             controller,
         ),
     )
 
+    clustering_process = mp.Process(
+        target=clustering_worker.clustering_worker,
+        args=(
+            MAX_CLUSTER_DISTANCE,
+            detection_to_clustering_queue,
+            clustering_to_cluster_classification_queue,
+            controller,
+        ),
+    )
+
+    # cluster_classification_process will go here.
+
     data_merge_process = mp.Process(
         target=data_merge_worker.data_merge_worker,
         args=(
+            MERGE_DATA_TYPE,
             DELAY,
             detection_to_data_merge_queue,
+            obstacle_to_data_merge_queue,
             flight_interface_to_data_merge_queue,
             merged_to_decision_queue,
             controller,
@@ -131,6 +155,7 @@ def main() -> int:
     # Run
     flight_interface_process.start()
     detection_process.start()
+    clustering_process.start()
     data_merge_process.start()
     decision_process.start()
 
@@ -145,11 +170,14 @@ def main() -> int:
     # Teardown
     flight_interface_to_data_merge_queue.fill_and_drain_queue()
     detection_to_data_merge_queue.fill_and_drain_queue()
+    detection_to_clustering_queue.fill_and_drain_queue()
+    clustering_to_cluster_classification_queue.fill_and_drain_queue()
     merged_to_decision_queue.fill_and_drain_queue()
     command_to_flight_interface_queue.fill_and_drain_queue()
 
     flight_interface_process.join()
     detection_process.join()
+    clustering_process.join()
     data_merge_process.join()
     decision_process.join()
 

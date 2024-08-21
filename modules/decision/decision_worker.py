@@ -3,6 +3,7 @@ Gets detections and odometry and outputs a decision.
 """
 
 from modules import detections_and_odometry
+from modules import obstacle
 from worker import queue_wrapper
 from worker import worker_controller
 from . import decision
@@ -13,6 +14,7 @@ def decision_worker(
     max_history: int,
     command_timeout: float,
     merged_in_queue: queue_wrapper.QueueWrapper,
+    obstacle_in_queue: queue_wrapper.QueueWrapper,
     command_out_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
 ) -> None:
@@ -29,11 +31,21 @@ def decision_worker(
     while not controller.is_exit_requested():
         controller.check_pause()
 
-        merged_data: detections_and_odometry.DetectionsAndOdometry = merged_in_queue.queue.get()
+        merged_data: detections_and_odometry.DetectionsAndOdometry = (
+            merged_in_queue.queue.get_nowait()
+        )
         if merged_data is None:
             break
 
+        obstacle_data: obstacle.Obstacle = obstacle_in_queue.queue.get_nowait()
+        if obstacle_data is None:
+            break
+
         result, value = decider.run(merged_data)
+        if not result:
+            continue
+
+        result, value = decider.run_obstacle_avoidance(obstacle_data)
         if not result:
             continue
 
