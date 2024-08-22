@@ -1,6 +1,7 @@
 # Global constants for main.
 
 queue_max_size: 10
+obstacle_avoidance_mode: "simple"
 
 flight_interface:
     address: "/dev/ttyUSB0"
@@ -21,7 +22,6 @@ clustering:
     max_cluster_distance: 0.2 # metres
 
 data_merge:
-    merge_data_type: "OBSTACLES" # "OBSTACLES" or "DETECTIONS"
     delay: 0.1 # seconds
 
 decision:

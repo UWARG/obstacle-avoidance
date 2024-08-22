@@ -11,6 +11,7 @@ import yaml
 from modules.clustering import clustering_worker
 from modules.data_merge import data_merge_worker
 from modules.decision import decision_worker
+from modules.deflection import deflection_worker
 from modules.detection import detection_worker
 from modules.flight_interface import flight_interface_worker
 from worker import queue_wrapper
@@ -43,6 +44,7 @@ def main() -> int:
         # Local constants
         # pylint: disable=invalid-name
         QUEUE_MAX_SIZE = config["queue_max_size"]
+        OBSTACLE_AVOIDANCE_MODE = config["obstacle_avoidance_mode"]  # either "simple" or "normal"
 
         FLIGHT_INTERFACE_ADDRESS = config["flight_interface"]["address"]
         FLIGHT_INTERFACE_TIMEOUT = config["flight_interface"]["timeout"]
@@ -61,7 +63,6 @@ def main() -> int:
 
         MAX_CLUSTER_DISTANCE = config["clustering"]["max_cluster_distance"]
 
-        MERGE_DATA_TYPE = config["data_merge"]["merge_data_type"]
         DELAY = config["data_merge"]["delay"]
 
         OBJECT_PROXIMITY_LIMIT = config["decision"]["object_proximity_limit"]
@@ -78,12 +79,9 @@ def main() -> int:
 
     flight_interface_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
     detection_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
-    detection_to_clustering_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
-    clustering_to_cluster_classification_queue = queue_wrapper.QueueWrapper(
-        mp_manager, QUEUE_MAX_SIZE
-    )
-    obstacle_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
-    merged_to_decision_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    merged_to_decision_queue = None
+    merged_to_clustering_queue = None
+    clustering_to_deflection_queue = None
     command_to_flight_interface_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
     flight_interface_process = mp.Process(
@@ -110,54 +108,85 @@ def main() -> int:
             HIGH_ANGLE,
             ROTATE_SPEED,
             detection_to_data_merge_queue,
-            detection_to_clustering_queue,
             controller,
         ),
     )
 
-    clustering_process = mp.Process(
-        target=clustering_worker.clustering_worker,
-        args=(
-            MAX_CLUSTER_DISTANCE,
-            detection_to_clustering_queue,
-            clustering_to_cluster_classification_queue,
-            controller,
-        ),
-    )
+    data_merge_process = None
+    clustering_process = None
+    deflection_process = None
+    decision_process = None
 
-    # cluster_classification_process will go here.
+    if OBSTACLE_AVOIDANCE_MODE == "simple":
+        merged_to_decision_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
-    data_merge_process = mp.Process(
-        target=data_merge_worker.data_merge_worker,
-        args=(
-            MERGE_DATA_TYPE,
-            DELAY,
-            detection_to_data_merge_queue,
-            obstacle_to_data_merge_queue,
-            flight_interface_to_data_merge_queue,
-            merged_to_decision_queue,
-            controller,
-        ),
-    )
+        data_merge_process = mp.Process(
+            target=data_merge_worker.data_merge_worker,
+            args=(
+                DELAY,
+                detection_to_data_merge_queue,
+                flight_interface_to_data_merge_queue,
+                merged_to_decision_queue,
+                controller,
+            ),
+        )
 
-    decision_process = mp.Process(
-        target=decision_worker.decision_worker,
-        args=(
-            OBJECT_PROXIMITY_LIMIT,
-            MAX_HISTORY,
-            COMMAND_TIMEOUT,
-            merged_to_decision_queue,
-            command_to_flight_interface_queue,
-            controller,
-        ),
-    )
+        decision_process = mp.Process(
+            target=decision_worker.decision_worker,
+            args=(
+                OBJECT_PROXIMITY_LIMIT,
+                MAX_HISTORY,
+                COMMAND_TIMEOUT,
+                merged_to_decision_queue,
+                command_to_flight_interface_queue,
+                controller,
+            ),
+        )
+
+    elif OBSTACLE_AVOIDANCE_MODE == "normal":
+        merged_to_clustering_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+        clustering_to_deflection_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+
+        data_merge_process = mp.Process(
+            target=data_merge_worker.data_merge_worker,
+            args=(
+                DELAY,
+                detection_to_data_merge_queue,
+                flight_interface_to_data_merge_queue,
+                merged_to_clustering_queue,
+                controller,
+            ),
+        )
+
+        clustering_process = mp.Process(
+            target=clustering_worker.clustering_worker,
+            args=(
+                MAX_CLUSTER_DISTANCE,
+                merged_to_clustering_queue,
+                clustering_to_deflection_queue,
+                controller,
+            ),
+        )
+
+        deflection_process = mp.Process(
+            target=deflection_worker.deflection_worker,
+            args=(
+                clustering_to_deflection_queue,
+                command_to_flight_interface_queue,
+                controller,
+            ),
+        )
 
     # Run
     flight_interface_process.start()
     detection_process.start()
-    clustering_process.start()
+    if clustering_process is not None:
+        clustering_process.start()
     data_merge_process.start()
-    decision_process.start()
+    if decision_process is not None:
+        decision_process.start()
+    if deflection_process is not None:
+        deflection_process.start()
 
     while True:
         try:
@@ -170,16 +199,20 @@ def main() -> int:
     # Teardown
     flight_interface_to_data_merge_queue.fill_and_drain_queue()
     detection_to_data_merge_queue.fill_and_drain_queue()
-    detection_to_clustering_queue.fill_and_drain_queue()
-    clustering_to_cluster_classification_queue.fill_and_drain_queue()
     merged_to_decision_queue.fill_and_drain_queue()
+    merged_to_clustering_queue.fill_and_drain_queue()
+    clustering_to_deflection_queue.fill_and_drain_queue()
     command_to_flight_interface_queue.fill_and_drain_queue()
 
     flight_interface_process.join()
     detection_process.join()
-    clustering_process.join()
+    if clustering_process is not None:
+        clustering_process.join()
     data_merge_process.join()
-    decision_process.join()
+    if decision_process is not None:
+        decision_process.join()
+    if deflection_process is not None:
+        deflection_process.join()
 
     return 0
 
