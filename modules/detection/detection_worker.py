@@ -15,8 +15,7 @@ def detection_worker(
     low_angle: float,
     high_angle: float,
     rotate_speed: int,
-    detection_to_clustering_queue: queue_wrapper.QueueWrapper,
-    detection_to_data_merge_queue: queue_wrapper.QueueWrapper,
+    output_queue: queue_wrapper.QueueWrapper,
     controller: worker_controller.WorkerController,
 ) -> None:
     """
@@ -47,5 +46,4 @@ def detection_worker(
         if not result:
             continue
 
-        detection_to_clustering_queue.queue.put(value)
-        detection_to_data_merge_queue.queue.put(value)
+        output_queue.queue.put(value)
