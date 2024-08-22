@@ -29,7 +29,7 @@ def deflection_worker(
         if cluster_data is None:
             break
 
-        result, value = deflecter.run() # run with cluster_data
+        result, value = deflecter.run()  # run with cluster_data
         if not result:
             continue
 
