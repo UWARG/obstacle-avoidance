@@ -1,7 +1,7 @@
 # Global constants for main.
 
 queue_max_size: 10
-obstacle_avoidance_mode: "simple"
+obstacle_avoidance_mode: "simple" # either "simple" or "normal"
 
 flight_interface:
     address: "/dev/ttyUSB0"
