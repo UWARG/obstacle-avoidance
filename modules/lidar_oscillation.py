@@ -2,6 +2,7 @@
 Representing a LiDAR Oscillation
 """
 
+
 class LidarReading:
     """
     Class to represent a LiDAR oscillation with distance and angle readings.
@@ -14,7 +15,7 @@ class LidarReading:
         """
         Create a new LidarReading object.
         """
-        # Ensure valid input data 
+        # Ensure valid input data
         if distance < 0 or angle < -170 or angle > 170:
             return False, None
 
@@ -35,6 +36,7 @@ class LidarReading:
         Return a string representation of the LiDAR oscillation data.
         """
         return f"LidarReading: {self.distance} m at {self.angle} degrees"
+
 
 class LidarOscillation:
     """
@@ -67,7 +69,7 @@ class LidarOscillation:
         """
         Return a string representation of the LiDAR oscillation data.
         """
-        reading_strs = [str(reading) for reading in self.readings]  # Create a list of reading strings
+        reading_strs = [
+            str(reading) for reading in self.readings
+        ]  # Create a list of reading strings
         return f"LidarOscillation with {len(self.readings)} readings:\n" + "\n".join(reading_strs)
-
-
