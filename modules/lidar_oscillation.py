@@ -2,7 +2,7 @@
 Representing a LiDAR Oscillation
 """
 
-from lidar_detection import LidarDetection
+from . import lidar_detection
 
 
 class LidarOscillation:
@@ -13,28 +13,29 @@ class LidarOscillation:
     __create_key = object()
 
     @classmethod
-    def create(cls, readings: list[LidarDetection]) -> "tuple[bool, LidarOscillation | None]":
+    def create(
+        cls, readings: list[lidar_detection.LidarDetection]
+    ) -> "tuple[bool, LidarOscillation | None]":
         """
         Create a new LidarOscillation object from a list of LidarReading objects.
         """
-        # Ensuring the list does not contain None values
-        if any(reading is None for reading in readings):
-            return False, None
 
         return True, LidarOscillation(cls.__create_key, readings)
 
-    def __init__(self, class_private_create_key: object, readings: list[LidarDetection]) -> None:
+    def __init__(
+        self, class_private_create_key: object, readings: list[lidar_detection.LidarDetection]
+    ) -> None:
         """
         Private constructor, use create() method to instantiate.
         """
         assert class_private_create_key is LidarOscillation.__create_key, "Use the create() method"
 
         self.readings = readings
-        valid_angles = [reading.angle for reading in readings if reading is not None]
+        angles = [reading.angle for reading in readings]
 
-        if valid_angles:
-            self.min_angle = min(valid_angles)
-            self.max_angle = max(valid_angles)
+        if angles:
+            self.min_angle = min(angles)
+            self.max_angle = max(angles)
         else:
             self.min_angle = None
             self.max_angle = None
