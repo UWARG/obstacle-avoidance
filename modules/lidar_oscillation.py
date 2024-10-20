@@ -1,8 +1,9 @@
-from lidar_detection import LidarDetection
-
 """
 Representing a LiDAR Oscillation
 """
+
+from lidar_detection import LidarDetection
+
 
 class LidarOscillation:
     """
@@ -37,7 +38,7 @@ class LidarOscillation:
         else:
             self.min_angle = None
             self.max_angle = None
-         
+
     def __str__(self) -> str:
         """
         Return a string representation of the LiDAR oscillation data.
@@ -47,4 +48,3 @@ class LidarOscillation:
             reading_strs.append(str(reading))
         formatted_readings = ", ".join(reading_strs)
         return f"LidarOscillation: {len(self.readings)} readings, Min angle: {self.min_angle}, Max angle: {self.max_angle}, Readings: {formatted_readings}."
-
