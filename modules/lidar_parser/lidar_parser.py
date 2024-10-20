@@ -87,9 +87,3 @@ class LidarParser:
             self.__run = True
 
         return self.process_reading(lidar_detection)
-
-    def stop(self):
-        """
-        Stop the LiDAR parser.
-        """
-        self.__run = False
