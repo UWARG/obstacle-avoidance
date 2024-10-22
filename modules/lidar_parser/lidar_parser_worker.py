@@ -2,12 +2,11 @@
 Gets detections and outputs oscillations when complete.
 """
 
+from . import lidar_parser
 from modules import lidar_detection
 from modules import lidar_oscillation
-from modules import decision
 from worker import queue_wrapper
 from worker import worker_controller
-from . import lidar_parser
 
 
 def lidar_oscillation_worker(
@@ -19,21 +18,19 @@ def lidar_oscillation_worker(
     Feeding LidarParser continuously with a stream of LidarDetection
     """
 
-    result, parser = lidar_parser.LidarParser.create()
+    result, parser = lidar_parser.LidarParser()
     if not result:
-        print("Failed to create LidarParser.")
+        print("Failed to initialise LidarParser.")
         return
 
     while not controller.is_exit_requested():
         controller.check_pause()
 
-        lidar_data: lidar_detection.LidarDetection = detection_in_queue.queue.get()
-        if lidar_data is None:
+        lidar_reading: lidar_detection.LidarDetection = detection_in_queue.queue.get()
+        if lidar_reading is None:  # Do we want this line?
             break
 
-        parser.run(lidar_data)
-
-        result, oscillation = parser.run(detection_in_queue)
+        result, oscillation = parser.run(lidar_reading)
         if not result:
             continue
 
