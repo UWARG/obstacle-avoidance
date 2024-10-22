@@ -19,7 +19,8 @@ class LidarOscillation:
         """
         Create a new LidarOscillation object from a list of LidarReading objects.
         """
-
+        if not readings:
+            return False, None
         return True, LidarOscillation(cls.__create_key, readings)
 
     def __init__(
@@ -32,13 +33,8 @@ class LidarOscillation:
 
         self.readings = readings
         angles = [reading.angle for reading in readings]
-
-        if angles:
-            self.min_angle = min(angles)
-            self.max_angle = max(angles)
-        else:
-            self.min_angle = None
-            self.max_angle = None
+        self.min_angle = min(angles)
+        self.max_angle = max(angles)
 
     def __str__(self) -> str:
         """
