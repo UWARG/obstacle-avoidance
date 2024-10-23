@@ -1,6 +1,6 @@
 """
 Classes to store object densities as a histogram.
- """
+"""
 
 
 class SectorObstacleDensity:
@@ -18,9 +18,9 @@ class SectorObstacleDensity:
         Create a new SectorObstacleDensity object.
 
         Parameters:
-        - angle_start: The starting angle of the sector cluster.
-        - angle_end: The ending angle of the sector cluster.
-        - density: The calculated obstacle density for this sector.
+        - angle_start: The starting angle of the sector cluster in degrees
+        - angle_end: The ending angle of the sector cluster in degrees
+        - density: The calculated obstacle density for this sector. (0 <= density <= 1)
         """
         return True, SectorObstacleDensity(cls.__create_key, angle_start, angle_end, density)
 
