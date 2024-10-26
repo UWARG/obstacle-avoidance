@@ -235,7 +235,7 @@ def execute_mission():
     print("Home location set at:", home_location)
 
     # Create the square mission
-    create_square_mission(vehicle.location.global_relative_frame, 25)
+    create_square_mission(vehicle.location.global_relative_frame, 10)
 
     print("Starting mission")
     vehicle.mode = VehicleMode("AUTO")
@@ -259,7 +259,7 @@ def execute_mission():
 
                 # Calculate intermediate waypoint offset
                 intermediate_wp = get_location_metres(
-                    vehicle.location.global_relative_frame, 15, 15
+                    vehicle.location.global_relative_frame, 7.5, 7.5
                 )
                 goto_position_target_global_int(intermediate_wp)
 
