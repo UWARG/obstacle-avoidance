@@ -27,7 +27,7 @@ def lidar_oscillation_worker(
         controller.check_pause()
 
         lidar_reading: lidar_detection.LidarDetection = detection_in_queue.queue.get()
-        if lidar_reading is None:  
+        if lidar_reading is None:
             continue
 
         result, oscillation = parser.run(lidar_reading)
