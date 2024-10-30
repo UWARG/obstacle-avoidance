@@ -42,9 +42,6 @@ class LidarParser:
         Process a single LidarDetection and return the oscillation if complete.
         """
 
-        if lidar_detection is None:
-            return False, None
-
         self.lidar_readings.append(lidar_detection)
 
         current_angle = lidar_detection.angle

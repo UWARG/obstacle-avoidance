@@ -15,10 +15,10 @@ def lidar_oscillation_worker(
     controller: worker_controller.WorkerController,
 ) -> None:
     """
-    Feeding LidarParser continuously with a stream of LidarDetection
+    Feeding LidarParser continuously with a stream of LidarDetection.
     """
 
-    result, parser = lidar_parser.LidarParser()
+    parser = lidar_parser.LidarParser()
     if not result:
         print("Failed to initialise LidarParser.")
         return
@@ -27,8 +27,8 @@ def lidar_oscillation_worker(
         controller.check_pause()
 
         lidar_reading: lidar_detection.LidarDetection = detection_in_queue.queue.get()
-        if lidar_reading is None:  # Do we want this line?
-            break
+        if lidar_reading is None:  
+            continue
 
         result, oscillation = parser.run(lidar_reading)
         if not result:
