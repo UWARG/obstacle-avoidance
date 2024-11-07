@@ -11,33 +11,36 @@ class VectorFieldHistogram:
 
     def __init__(
         self,
-        sector_width: float = 2.0,
-        max_vector_magnitude: float = 1.0,
-        linear_decay_rate: float = 0.1,
-        confidence_value: float = 0.9,
-        start_angle: float = -90.0,
-        end_angle: float = 90.0,
+        sector_width: float,
+        max_vector_magnitude: float,
+        linear_decay_rate: float,
+        confidence_value: float,
+        start_angle: float,
+        end_angle: float,
     ) -> None:
         """
         Initialize the VectorFieldHistogram with the following parameters:
 
-        - sector_width: The angular size of each sector.
-        - max_vector_magnitude: The maximum magnitude of obstacle vectors.
-        - linear_decay_rate: The rate at which vector magnitudes decay with distance.
-        - confidence_value: The certainty value applied to each detection.
-        - density_threshold: The threshold for obstacle density filtering (used later).
+        - sector_width (degrees): The angular size of each sector.
+        - max_vector_magnitude (unitless): The maximum magnitude applied to obstacle vectors in
+        SectorObstacleDensities, representing the highest obstacle density for a sector.
+        - linear_decay_rate (unitless): The rate at which the magnitude of SectorObstacleDensity
+        reduces with increasing distance.
+        - confidence_value (unitless): The certainty value applied to each detection, to adjust for LiDAR error.
+        - density_threshold (unitless): The threshold for filtering obstacle densities (used later).
         """
 
         if sector_width <= 0:
-            raise ValueError("Sector width must be greater than 0.")
+            sector_width = 2
         if not (0 <= max_vector_magnitude <= 1):
-            raise ValueError("max_vector_magnitude must be between 0 and 1.")
+            max_vector_magnitude = 1
         if not (0 <= linear_decay_rate <= 1):
-            raise ValueError("linear_decay_rate must be between 0 and 1.")
+            linear_decay_rate = 0.1
         if not (0 <= confidence_value <= 1):
-            raise ValueError("confidence_value must be between 0 and 1.")
+            confidence_value = 0.9
         if start_angle >= end_angle:
-            raise ValueError("start_angle must be less than end_angle.")
+            start_angle = -90
+            end_angle = 90
 
         self.sector_width = sector_width
         self.start_angle = start_angle
@@ -54,8 +57,6 @@ class VectorFieldHistogram:
         """
         Generate a PolarObstacleDensity from the LidarOscillation.
         """
-        if oscillation is None:
-            return False, None
 
         object_densities = np.zeros(self.num_sectors)
 
@@ -70,10 +71,10 @@ class VectorFieldHistogram:
             sector_index = min(sector_index, self.num_sectors - 1)
 
             distance_factor = self.max_vector_magnitude - self.linear_decay_rate * reading.distance
-            m_ij = (self.confidence_value**2) * distance_factor
+            obstacle_magnitude = (self.confidence_value**2) * distance_factor
 
             # Accumulate obstacle densities
-            object_densities[sector_index] += max(m_ij, 0)
+            object_densities[sector_index] += max(obstacle_magnitude, 0)
 
         sector_densities = []
         for i, density in enumerate(object_densities):
