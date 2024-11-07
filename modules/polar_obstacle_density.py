@@ -5,7 +5,10 @@ Classes to store object densities as a histogram.
 
 class SectorObstacleDensity:
     """
-    Class to represent the obstacle density for a specific angular sector.
+    Represents the obstacle density within a specific angular sector, measuring
+    the level of obstruction in that sector based on LiDAR data.
+
+    Each sector has a width of 2 degrees, covering an angular range from -90 to +90 degrees.
     """
 
     __create_key = object()
@@ -18,9 +21,12 @@ class SectorObstacleDensity:
         Create a new SectorObstacleDensity object.
 
         Parameters:
-        - angle_start: The starting angle of the sector cluster in degrees
-        - angle_end: The ending angle of the sector cluster in degrees
-        - density: The calculated obstacle density for this sector. (0 <= density <= 1)
+        - angle_start: The starting angle of the sector cluster in degrees.
+        - angle_end: The ending angle of the sector cluster in degrees.
+        - density: The calculated obstacle density for this sector.
+            The density value x (0 ≤ x ≤ 1) represents obstacle concentration in a sector:
+                x=0: No obstacles (sector is clear).
+                x≈1: High obstacle concentration (sector is obstructed).
         """
         return True, SectorObstacleDensity(cls.__create_key, angle_start, angle_end, density)
 
@@ -47,7 +53,10 @@ class SectorObstacleDensity:
 
 class PolarObstacleDensity:
     """
-    Class to represent a collection of obstacle densities across angular sectors.
+    Represents a collection of obstacle densities across multiple angular sectors
+    for a single oscillation.
+
+    Contains a list of SectorObstacleDensity objects that store the obstacle density for each individual sector
     """
 
     __create_key = object()
