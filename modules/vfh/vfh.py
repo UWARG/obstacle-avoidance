@@ -86,7 +86,7 @@ class VectorFieldHistogram:
             if result:
                 sector_densities.append(sector_density)
 
-        result, polar_obstacle_density = polar_obstacle_density.PolarObstacleDensity.create(
+        result, polar_obstacle_density_object = polar_obstacle_density.PolarObstacleDensity.create(
             sector_densities
         )
-        return result, polar_obstacle_density
+        return result, polar_obstacle_density_object
