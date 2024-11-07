@@ -7,9 +7,6 @@ import pytest
 from modules import lidar_detection
 from modules.lidar_parser import lidar_parser
 
-ANGLE_UP = 15.0
-ANGLE_DOWN = -15.0
-
 # pylint: disable=redefined-outer-name, duplicate-code
 
 
@@ -27,7 +24,7 @@ def lidar_detection_up() -> lidar_detection.LidarDetection:  # type: ignore
     """
     Fixture to create an upward LidarDetection object.
     """
-    result, detection = lidar_detection.LidarDetection.create(5.0, ANGLE_UP)
+    result, detection = lidar_detection.LidarDetection.create(5.0, 15.0)
     assert result
     assert detection is not None
     yield detection
@@ -51,7 +48,7 @@ def lidar_detection_down() -> lidar_detection.LidarDetection:  # type: ignore
     """
     Fixture to create a downward LidarDetection object.
     """
-    result, detection = lidar_detection.LidarDetection.create(5.0, ANGLE_DOWN)
+    result, detection = lidar_detection.LidarDetection.create(5.0, -15.0)
     assert result
     assert detection is not None
     yield detection
@@ -102,6 +99,8 @@ class TestLidarParser:
         result, oscillation = lidar_parser_instance.run(lidar_detection_down)
         assert result
         assert oscillation is not None
+        assert len(oscillation.readings) == 2
+        assert lidar_parser_instance.lidar_readings[0].angle == -15.0
 
     def test_no_oscillation_on_same_direction(
         self,
@@ -144,7 +143,7 @@ class TestLidarParser:
         result, oscillation = lidar_parser_instance.run(lidar_detection_down)
         assert result
         assert oscillation is not None
-        assert len(lidar_parser_instance.lidar_readings) == 0
+        assert len(lidar_parser_instance.lidar_readings) == 1
 
     def test_alternating_up_down_oscillations(
         self,
@@ -188,6 +187,7 @@ class TestLidarParser:
         result, oscillation = lidar_parser_instance.run(lidar_detection_up)
         assert not result
         assert oscillation is None
+        assert lidar_parser_instance.lidar_readings[0].angle == 15.0
 
     def test_oscillation_on_direction_change_after_none(
         self,
