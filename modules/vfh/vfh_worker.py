@@ -1,6 +1,6 @@
 from . import vector_field_histogram
 from modules import lidar_oscillation
-from modules import PolarObstacleDensity
+from modules import polar_obstacle_density
 from worker import queue_wrapper
 from worker import worker_controller
 
