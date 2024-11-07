@@ -23,11 +23,10 @@ class LidarParser:
     Class to handle parsing of LiDAR data stream and detecting complete oscillations.
     """
 
-    def __init__(self, class_private_create_key: object) -> None:
+    def __init__(self) -> None:
         """
         Private constructor for LidarParser. Use create() method.
         """
-        assert class_private_create_key is LidarParser.__create_key, "Use the create() method"
 
         self.lidar_readings = []
         self.current_oscillation = None
@@ -41,24 +40,26 @@ class LidarParser:
         """
         Process a single LidarDetection and return the oscillation if complete.
         """
-
         self.lidar_readings.append(lidar_detection)
-
         current_angle = lidar_detection.angle
+
         if self.last_angle is None:
             self.last_angle = current_angle
             return False, None
 
+        # Detect oscillation on angle change with correct direction reset
         if current_angle > self.last_angle and self.direction == Direction.DOWN:
             result, oscillation = lidar_oscillation.LidarOscillation.create(self.lidar_readings)
             self.direction = Direction.UP
             self.lidar_readings = []
+            self.last_angle = current_angle
             return result, oscillation
 
         elif current_angle < self.last_angle and self.direction == Direction.UP:
             result, oscillation = lidar_oscillation.LidarOscillation.create(self.lidar_readings)
             self.direction = Direction.DOWN
             self.lidar_readings = []
+            self.last_angle = current_angle
             return result, oscillation
 
         elif self.direction is Direction.NONE:

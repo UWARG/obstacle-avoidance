@@ -19,7 +19,7 @@ def lidar_oscillation_worker(
     """
 
     parser = lidar_parser.LidarParser()
-    if not result:
+    if not parser:
         print("Failed to initialise LidarParser.")
         return
 
@@ -28,8 +28,7 @@ def lidar_oscillation_worker(
 
         lidar_reading: lidar_detection.LidarDetection = detection_in_queue.queue.get()
         if lidar_reading is None:
-            continue
-
+            break
         result, oscillation = parser.run(lidar_reading)
         if not result:
             continue
