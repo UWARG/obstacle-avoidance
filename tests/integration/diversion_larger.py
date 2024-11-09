@@ -6,6 +6,11 @@ from modules.common.mavlink.dronekit import connect, VehicleMode, LocationGlobal
 import time
 import math
 from pymavlink import mavutil
+import sys
+import signal
+
+# Global flag to indicate mission should be aborted
+mission_abort = False
 
 # Set up option parsing to get connection string
 import argparse
@@ -224,6 +229,36 @@ def distance_to_waypoint(current_location, target_location):
     return math.sqrt((dlat * dlat) + (dlong * dlong)) * 1.113195e5
 
 
+def set_loiter_mode(signal, frame):
+    global mission_abort
+    print("\nInterrupt signal received! Aborting mission and switching to LOITER mode.")
+    mission_abort = True
+
+    if vehicle and vehicle.is_armable:
+        try:
+            # Force switch to LOITER mode
+            vehicle.mode = VehicleMode("LOITER")
+
+            # Confirm the mode change
+            while vehicle.mode.name != "LOITER":
+                print(" Waiting for LOITER mode to activate...")
+                vehicle.mode = VehicleMode("LOITER")
+                time.sleep(1)
+
+            print("Successfully switched to LOITER mode and killed script")
+
+        except Exception as e:
+            print(f"Failed to switch to LOITER mode: {e}")
+    else:
+        print("Vehicle is not armable or not connected.")
+    sys.exit(0)
+
+
+# Assign signal handlers
+signal.signal(signal.SIGINT, set_loiter_mode)
+signal.signal(signal.SIGTERM, set_loiter_mode)
+
+
 def execute_mission():
     takeoff_altitude = 10
 
@@ -244,7 +279,7 @@ def execute_mission():
     # Flag to track if we have visited the intermediate waypoint
     intermediate_waypoint_reached = False
 
-    while True:
+    while not mission_abort:
         nextwaypoint = vehicle.commands.next
         print(
             "Distance to waypoint (%s): %s" % (nextwaypoint, vehicle.location.global_relative_frame)
