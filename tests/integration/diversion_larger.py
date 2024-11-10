@@ -34,7 +34,7 @@ print("Connecting to vehicle on: %s" % connection_string)
 vehicle = connect(connection_string, wait_ready=True)
 
 
-def arm_and_takeoff(aTargetAltitude):
+def arm_and_takeoff(aTargetAltitude):  # type: ignore
     print("Basic pre-arm checks")
     while not vehicle.is_armable:
         print(" Waiting for vehicle to initialise...")
@@ -58,7 +58,7 @@ def arm_and_takeoff(aTargetAltitude):
         time.sleep(1)
 
 
-def get_location_metres(original_location, dNorth, dEast):
+def get_location_metres(original_location, dNorth, dEast):  # type: ignore
     earth_radius = 6378137.0
     dLat = dNorth / earth_radius
     dLon = dEast / (earth_radius * math.cos(math.pi * original_location.lat / 180))
@@ -67,7 +67,7 @@ def get_location_metres(original_location, dNorth, dEast):
     return LocationGlobalRelative(newlat, newlon, original_location.alt)
 
 
-def create_square_mission(aLocation, aSize):
+def create_square_mission(aLocation, aSize):  # type: ignore
     cmds = vehicle.commands
     cmds.clear()
 
@@ -192,7 +192,7 @@ def create_square_mission(aLocation, aSize):
     cmds.upload()
 
 
-def goto_position_target_global_int(aLocation):
+def goto_position_target_global_int(aLocation):  # type: ignore
     msg = vehicle.message_factory.set_position_target_global_int_encode(
         0,
         0,
@@ -214,7 +214,7 @@ def goto_position_target_global_int(aLocation):
     vehicle.send_mavlink(msg)
 
 
-def distance_to_waypoint(current_location, target_location):
+def distance_to_waypoint(current_location, target_location):  # type: ignore
     if isinstance(target_location, Command):
         target_lat = target_location.x  # Use x, y for lat, lon in Command
         target_lon = target_location.y
@@ -229,7 +229,7 @@ def distance_to_waypoint(current_location, target_location):
     return math.sqrt((dlat * dlat) + (dlong * dlong)) * 1.113195e5
 
 
-def set_loiter_mode(signal, frame):
+def set_loiter_mode(signal, frame):  # type: ignore
     global mission_abort
     print("\nInterrupt signal received! Aborting mission and switching to LOITER mode.")
     mission_abort = True
@@ -259,7 +259,7 @@ signal.signal(signal.SIGINT, set_loiter_mode)
 signal.signal(signal.SIGTERM, set_loiter_mode)
 
 
-def execute_mission():
+def execute_mission():  # type: ignore
     takeoff_altitude = 10
 
     # Arm and take off to the target altitude
