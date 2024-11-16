@@ -428,7 +428,7 @@ def execute_mission():  # type: ignore
 
                 # Wait for the drone to stabilize and hold the position
                 for _ in range(10):  # 10 iterations of 1 second each (10 seconds total)
-                    if mission_abort:  
+                    if mission_abort:
                         print("Mission aborted during NED movement at waypoint 4.")
                         return
                     print("Holding position in NED frame during fourth waypoint movement.")
