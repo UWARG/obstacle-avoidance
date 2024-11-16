@@ -9,6 +9,8 @@ from pymavlink import mavutil
 import sys
 import signal
 
+# flake8: noqa
+
 # Global flag to indicate mission should be aborted
 mission_abort = False
 
