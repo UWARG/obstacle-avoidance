@@ -120,6 +120,7 @@ class TestVFHDecision:
         """Tests decision-making when the target direction is completely open."""
         result, steering_angle = decision_maker.run(open_space_target_ahead)
         assert not result
+        assert steering_angle is None
 
     def test_target_completely_blocked(
         self,
@@ -139,6 +140,7 @@ class TestVFHDecision:
         """Tests decision-making when NE is open but NW is blocked."""
         result, steering_angle = decision_maker.run(target_open_ne_direction_nw)
         assert not result
+        assert steering_angle is None
 
     def test_target_open_narrow_valley(
         self,
