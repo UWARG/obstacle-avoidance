@@ -27,7 +27,6 @@ class VectorFieldHistogram:
         - linear_decay_rate (unitless): The rate at which the magnitude of SectorObstacleDensity
         reduces with increasing distance.
         - confidence_value (unitless): The certainty value applied to each detection, to adjust for LiDAR error.
-        - density_threshold (unitless): The threshold for filtering obstacle densities (used later).
         """
 
         if sector_width <= 0:
