@@ -108,17 +108,16 @@ class DroneOdometryLocal:
         self.timestamp = timestamp
         self.waypoint = waypoint
 
-
-def __str__(self) -> str:
-    """
-    String representation.
-    """
-    return (
-        f"{self.__class__}, "
-        f"{self.local_position}, "
-        f"DroneOrientation: Roll: {self.drone_orientation.roll}, "
-        f"Pitch: {self.drone_orientation.pitch}, "
-        f"Yaw: {self.drone_orientation.yaw}. "
-        f"Flight mode: {self.flight_mode}. "
-        f"Time: {self.timestamp}."
-    )
+    def __str__(self) -> str:
+        """
+        String representation.
+        """
+        return (
+            f"{self.__class__}, "
+            f"{self.local_position}, "
+            f"DroneOrientation: Roll: {self.drone_orientation.roll}, "
+            f"Pitch: {self.drone_orientation.pitch}, "
+            f"Yaw: {self.drone_orientation.yaw}. "
+            f"Flight mode: {self.flight_mode}. "
+            f"Time: {self.timestamp}."
+        )
