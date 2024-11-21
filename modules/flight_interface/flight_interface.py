@@ -127,7 +127,7 @@ class FlightInterface:
                 print("Obstacle avoidance started!")
 
         return drone_odometry_local.DroneOdometryLocal.create(
-            local_position, drone_orientation, flight_mode
+            local_position, drone_orientation, flight_mode, self.first_waypoint
         )
 
     def run_decision_handler(self, command: decision_command.DecisionCommand) -> bool:

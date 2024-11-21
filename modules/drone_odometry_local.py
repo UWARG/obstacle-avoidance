@@ -67,6 +67,7 @@ class DroneOdometryLocal:
         local_position: DronePositionLocal,
         drone_orientation: drone_odometry.DroneOrientation,
         flight_mode: FlightMode,
+        waypoint: DronePositionLocal
     ) -> "tuple[bool, DroneOdometryLocal | None]":
         """
         Combines local odometry data with timestamp
@@ -93,6 +94,7 @@ class DroneOdometryLocal:
         drone_orientation: drone_odometry.DroneOrientation,
         flight_mode: FlightMode,
         timestamp: float,
+        waypoint: DronePositionLocal,
     ) -> None:
         """
         Private constructor, use create() method.
@@ -104,6 +106,7 @@ class DroneOdometryLocal:
         self.drone_orientation = drone_orientation
         self.flight_mode = flight_mode
         self.timestamp = timestamp
+        self.waypoint = waypoint
 
     def __str__(self) -> str:
         """
@@ -112,4 +115,5 @@ class DroneOdometryLocal:
         return f"{self.__class__},\
             {self.local_position}, \
                 DroneOrientation: Roll: {self.drone_orientation.roll}, Pitch: {self.drone_orientation.pitch}, Yaw: {self.drone_orientation.yaw}.\
-                    Flight mode: {self.flight_mode}. Time: {self.timestamp}."
+                    Flight mode: {self.flight_mode}. Time: {self.timestamp},
+                        Waypoint: North: {self.waypoint.north}, East: {self.waypoint.east}, Down: {self.waypoint.down}."
