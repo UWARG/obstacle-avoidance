@@ -31,13 +31,11 @@ def lidar_detection_up() -> lidar_detection.LidarDetection:  # type: ignore
 
 
 @pytest.fixture()
-def higher_angle_detection_up(lidar_detection_up: lidar_detection.LidarDetection) -> lidar_detection.LidarDetection:  # type: ignore
+def higher_angle_detection_up() -> lidar_detection.LidarDetection:  # type: ignore
     """
     Fixture to create a LidarDetection object with a higher upward angle than the previous detection.
     """
-    result, higher_detection = lidar_detection.LidarDetection.create(
-        5.0, lidar_detection_up.angle + 5.0
-    )
+    result, higher_detection = lidar_detection.LidarDetection.create(5.0, 20)
     assert result
     assert higher_detection is not None
     yield higher_detection
@@ -55,13 +53,11 @@ def lidar_detection_down() -> lidar_detection.LidarDetection:  # type: ignore
 
 
 @pytest.fixture()
-def lower_angle_detection_down(lidar_detection_up: lidar_detection.LidarDetection) -> lidar_detection.LidarDetection:  # type: ignore
+def lower_angle_detection_down() -> lidar_detection.LidarDetection:  # type: ignore
     """
     Fixture to create a LidarDetection object with a lower downward angle than the previous detection.
     """
-    result, lower_detection = lidar_detection.LidarDetection.create(
-        5.0, lidar_detection_up.angle - 5.0
-    )
+    result, lower_detection = lidar_detection.LidarDetection.create(5.0, -20)
     assert result
     assert lower_detection is not None
     yield lower_detection
@@ -100,7 +96,9 @@ class TestLidarParser:
         assert result
         assert oscillation is not None
         assert len(oscillation.readings) == 2
-        assert lidar_parser_instance.lidar_readings[0].angle == -15.0
+        assert oscillation.readings[0].angle == 15
+        assert oscillation.readings[1].angle == 20
+        assert lidar_parser_instance.lidar_readings[0].angle == -15
 
     def test_no_oscillation_on_same_direction(
         self,
@@ -163,6 +161,7 @@ class TestLidarParser:
         if result:
             oscillation_count += 1
             assert oscillation is not None
+            assert len(oscillation.readings) == 2
 
         for i in range(4):
             if i % 2 == 0:
@@ -173,6 +172,7 @@ class TestLidarParser:
             if result:
                 oscillation_count += 1
                 assert oscillation is not None
+                assert len(oscillation.readings) == 1
 
         assert oscillation_count == 5
 
