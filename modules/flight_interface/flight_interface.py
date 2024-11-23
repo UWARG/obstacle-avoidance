@@ -6,8 +6,9 @@ import math
 
 from modules import decision_command
 from modules import drone_odometry_local
-from ..common.mavlink.modules import drone_odometry
-from ..common.mavlink.modules import flight_controller
+from modules.common.modules.mavlink import drone_odometry_local
+from modules.common.modules.mavlink import drone_odometry_global
+from modules.common.modules.mavlink import flight_controller
 from . import conversions
 
 
@@ -33,7 +34,7 @@ class FlightInterface:
         if not result:
             return False, None
 
-        result, home_location = controller.get_home_location(timeout_home)
+        result, home_location = controller.get_home_position(timeout_home)
         if not result:
             return False, None
 

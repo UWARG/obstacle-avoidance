@@ -106,7 +106,6 @@ class DroneOdometryLocal:
         self.drone_orientation = drone_orientation
         self.flight_mode = flight_mode
         self.timestamp = timestamp
-        self.waypoint = waypoint
 
     def __str__(self) -> str:
         """
