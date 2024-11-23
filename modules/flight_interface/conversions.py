@@ -6,9 +6,6 @@ import pymap3d as pymap
 
 from ..common.modules import position_local
 from ..common.modules import position_global
-from ..common.modules.mavlink import drone_odometry_local
-from ..common.modules.mavlink import drone_odometry_global
-
 
 def position_global_to_local(
     global_position: position_global.PositionGlobal, home_location: position_global.PositionGlobal
