@@ -4,8 +4,8 @@ Drone position conversions to and from local (NED) and global (geodetic) space.
 
 import pymap3d as pymap
 
-from ..common.modules import position_global
-from ..common.modules import position_local
+from modules.common.modules import position_global
+from modules.common.modules import position_local
 
 
 def position_global_to_local(
