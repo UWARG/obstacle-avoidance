@@ -41,16 +41,16 @@ def simulate_flight_interface_worker(in_queue: queue_wrapper.QueueWrapper, ident
     assert result
     assert position is not None
 
-    result, orientation = orientation.Orientation.create(0.0, 0.0, 0.0)
+    result, orientation_instance = orientation.Orientation.create(0.0, 0.0, 0.0)
     assert result
-    assert orientation is not None
+    assert orientation_instance is not None
 
     flight_mode = odometry_and_waypoint.OdometryAndWaypoint.FlightMode.AUTO
 
     next_waypoint_local = position_local.PositionLocal.create(0.0, 0.0, 0.0)
 
     result, odometry = odometry_and_waypoint.OdometryAndWaypoint.create(
-        position, orientation, flight_mode, next_waypoint_local
+        position, orientation_instance, flight_mode, next_waypoint_local
     )
     assert result
     assert odometry is not None
