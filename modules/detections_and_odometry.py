@@ -2,8 +2,8 @@
 LiDAR detection and local odometry data structure.
 """
 
-from . import drone_odometry_local
 from . import lidar_detection
+from . import odometry_and_waypoint
 
 
 class DetectionsAndOdometry:
@@ -17,7 +17,7 @@ class DetectionsAndOdometry:
     def create(
         cls,
         detections: "list[lidar_detection.LidarDetection]",
-        local_odometry: drone_odometry_local.DroneOdometryLocal,
+        local_odometry: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> "tuple[bool, DetectionsAndOdometry | None]":
         """
         Combines lidar readings with local odometry
@@ -34,7 +34,7 @@ class DetectionsAndOdometry:
         self,
         create_key: object,
         detections: "list[lidar_detection.LidarDetection]",
-        local_odometry: drone_odometry_local.DroneOdometryLocal,
+        local_odometry: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """
         Private constructor, use create() method.

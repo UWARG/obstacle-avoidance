@@ -7,6 +7,7 @@ import queue
 
 from modules import decision_command
 from modules import drone_odometry_local
+from modules import odometry_and_waypoint
 from worker import queue_wrapper
 from worker import worker_controller
 from . import flight_interface
@@ -43,7 +44,7 @@ def flight_interface_worker(
 
         result, value = interface.run()
         if result:
-            if value.flight_mode == drone_odometry_local.FlightMode.MANUAL:
+            if value.flight_mode == odometry_and_waypoint.FlightMode.MANUAL:
                 print("Obstacle avoidance killed. Check flight mode.")
                 controller.request_exit()
                 break

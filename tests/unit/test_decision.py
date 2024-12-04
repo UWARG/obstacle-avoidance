@@ -6,9 +6,10 @@ import pytest
 
 from modules import decision_command
 from modules import detections_and_odometry
-from modules import drone_odometry_local
+from modules import odometry_and_waypoint
 from modules import lidar_detection
-from modules.common.mavlink.modules import drone_odometry
+from modules.common.modules import orientation
+from modules.common.modules import position_local
 from modules.decision import decision
 
 
@@ -46,18 +47,19 @@ def object_within_proximity_limit_while_moving() -> detections_and_odometry.Dete
     assert detection is not None
     detections.append(detection)
 
-    result, position = drone_odometry_local.DronePositionLocal.create(0.0, 0.0, 0.0)
+    result, position = position_local.PositionLocal.create(0.0, 0.0, 0.0)
     assert result
     assert position is not None
 
-    result, orientation = drone_odometry.DroneOrientation.create(0.0, 0.0, 0.0)
+    result, orientation_instance = orientation.Orientation.create(0.0, 0.0, 0.0)
     assert result
-    assert orientation is not None
+    assert orientation_instance is not None
 
-    flight_mode = drone_odometry_local.FlightMode.MOVING
+    flight_mode = odometry_and_waypoint.FlightMode.AUTO
+    next_waypoint_local = position_local.PositionLocal.create(0.0, 0.0, 0.0)
 
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
-        position, orientation, flight_mode
+    result, odometry = odometry_and_waypoint.OdometryAndWaypoint.create(
+        position, orientation_instance, flight_mode, next_waypoint_local
     )
     assert result
     assert odometry is not None
@@ -87,18 +89,20 @@ def object_within_proximity_limit_while_stopped() -> detections_and_odometry.Det
     assert detection is not None
     detections.append(detection)
 
-    result, position = drone_odometry_local.DronePositionLocal.create(0.0, 0.0, 0.0)
+    result, position = position_local.PositionLocal.create(0.0, 0.0, 0.0)
     assert result
     assert position is not None
 
-    result, orientation = drone_odometry.DroneOrientation.create(0.0, 0.0, 0.0)
+    result, orientation_instance = orientation.Orientation.create(0.0, 0.0, 0.0)
     assert result
-    assert orientation is not None
+    assert orientation_instance is not None
 
-    flight_mode = drone_odometry_local.FlightMode.STOPPED
+    flight_mode = odometry_and_waypoint.FlightMode.LOITER
 
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
-        position, orientation, flight_mode
+    next_waypoint_local = position_local.PositionLocal.create(0.0, 0.0, 0.0)
+
+    result, odometry = odometry_and_waypoint.OdometryAndWaypoint.create(
+        position, orientation_instance, flight_mode, next_waypoint_local
     )
     assert result
     assert odometry is not None
@@ -122,18 +126,18 @@ def object_outside_proximity_limit_while_moving() -> detections_and_odometry.Det
         assert detection is not None
         detections.append(detection)
 
-    result, position = drone_odometry_local.DronePositionLocal.create(0.0, 0.0, 0.0)
+    result, position = position_local.PositionLocal.create(0.0, 0.0, 0.0)
     assert result
     assert position is not None
 
-    result, orientation = drone_odometry.DroneOrientation.create(0.0, 0.0, 0.0)
+    result, orientation_instance = orientation.Orientation.create(0.0, 0.0, 0.0)
     assert result
-    assert orientation is not None
+    assert orientation_instance is not None
 
-    flight_mode = drone_odometry_local.FlightMode.MOVING
-
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
-        position, orientation, flight_mode
+    flight_mode = odometry_and_waypoint.FlightMode.AUTO
+    next_waypoint_local = position_local.PositionLocal.create(0.0, 0.0, 0.0)
+    result, odometry = odometry_and_waypoint.OdometryAndWaypoint.create(
+        position, orientation_instance, flight_mode, next_waypoint_local
     )
     assert result
     assert odometry is not None
@@ -157,18 +161,19 @@ def object_outside_proximity_limit_while_stopped() -> detections_and_odometry.De
         assert detection is not None
         detections.append(detection)
 
-    result, position = drone_odometry_local.DronePositionLocal.create(0.0, 0.0, 0.0)
+    result, position = position_local.PositionLocal.create(0.0, 0.0, 0.0)
     assert result
     assert position is not None
 
-    result, orientation = drone_odometry.DroneOrientation.create(0.0, 0.0, 0.0)
+    result, orientation_instance = orientation.Orientation.create(0.0, 0.0, 0.0)
     assert result
-    assert orientation is not None
+    assert orientation_instance is not None
 
-    flight_mode = drone_odometry_local.FlightMode.STOPPED
+    flight_mode = odometry_and_waypoint.FlightMode.LOITER
+    next_waypoint_local = position_local.PositionLocal.create(0.0, 0.0, 0.0)
 
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
-        position, orientation, flight_mode
+    result, odometry = odometry_and_waypoint.OdometryAndWaypoint.create(
+        position, orientation_instance, flight_mode, next_waypoint_local
     )
     assert result
     assert odometry is not None
