@@ -10,10 +10,10 @@ from modules import lidar_detection
 from modules import polar_obstacle_density
 
 # Constants for default parameters
-SECTOR_WIDTH = 2.0
+SECTOR_WIDTH = 5.0
 MAX_VECTOR_MAGNITUDE = 1.0
 LINEAR_DECAY_RATE = 0.05
-CONFIDENCE_VALUE = 0.9
+CONFIDENCE_VALUE = 1.0
 START_ANGLE = -90.0
 END_ANGLE = 90.0
 
