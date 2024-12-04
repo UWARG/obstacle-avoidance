@@ -2,8 +2,8 @@
 Obstacles and local odometry merged data structure.
 """
 
-from . import obstacle
 from modules import odometry_and_waypoint
+from . import obstacle
 
 
 class ObstaclesAndOdometry:
