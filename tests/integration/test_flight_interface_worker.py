@@ -9,8 +9,6 @@ import time
 from modules import decision_command
 from modules import odometry_and_waypoint
 from modules.flight_interface import flight_interface_worker
-from modules.common.modules import position_local
-from modules.common.modules import orientation
 from worker import worker_controller
 from worker import queue_wrapper
 

@@ -6,7 +6,6 @@ import time
 import queue
 
 from modules import decision_command
-from modules import drone_odometry_local
 from modules import odometry_and_waypoint
 from worker import queue_wrapper
 from worker import worker_controller
