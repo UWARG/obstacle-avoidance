@@ -2,8 +2,8 @@
 Obstacles and local odometry merged data structure.
 """
 
-from . import drone_odometry_local
 from . import obstacle
+from modules import odometry_and_waypoint
 
 
 class ObstaclesAndOdometry:
@@ -17,7 +17,7 @@ class ObstaclesAndOdometry:
     def create(
         cls,
         obstacles: "list[obstacle.Obstacle]",
-        local_odometry: drone_odometry_local.DroneOdometryLocal,
+        local_odometry: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> "tuple[bool, ObstaclesAndOdometry | None]":
         """
         Combines obstacles with local odometry.
@@ -31,7 +31,7 @@ class ObstaclesAndOdometry:
         self,
         create_key: object,
         obstacles: "list[obstacle.Obstacle]",
-        local_odometry: drone_odometry_local.DroneOdometryLocal,
+        local_odometry: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """
         Private constructor, use create() method.
