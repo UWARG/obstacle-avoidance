@@ -7,7 +7,7 @@ import queue
 import time
 
 from modules import decision_command
-from modules import drone_odometry_local
+from modules import odometry_and_waypoint
 from modules.flight_interface import flight_interface_worker
 from worker import worker_controller
 from worker import queue_wrapper
@@ -72,7 +72,7 @@ def main() -> int:
     # Test
     while True:
         try:
-            input_data: drone_odometry_local.DroneOdometryLocal = (
+            input_data: odometry_and_waypoint.OdometryAndWaypoint = (
                 odometry_out_queue.queue.get_nowait()
             )
             assert (
@@ -91,6 +91,7 @@ def main() -> int:
             print(f"yaw: {str(input_data.drone_orientation.yaw)}")
             print(f"flight mode: {str(input_data.flight_mode)}")
             print(f"timestamp: {str(input_data.timestamp)}")
+            print(f"waypoint: {str(input_data.next_waypoint)}")
             print("")
 
         except queue.Empty:

@@ -4,13 +4,13 @@ Drone position conversions to and from local (NED) and global (geodetic) space.
 
 import pymap3d as pymap
 
-from .. import drone_odometry_local
-from ..common.mavlink.modules import drone_odometry
+from ..common.modules import position_local
+from ..common.modules import position_global
 
 
 def position_global_to_local(
-    global_position: drone_odometry.DronePosition, home_location: drone_odometry.DronePosition
-) -> "tuple[bool, drone_odometry_local.DronePositionLocal | None]":
+    global_position: position_global.PositionGlobal, home_location: position_global.PositionGlobal
+) -> "tuple[bool, position_local.PositionLocal | None]":
     """
     Converts global position (geodetic) to local position (NED).
     """
@@ -23,7 +23,7 @@ def position_global_to_local(
         home_location.altitude,
     )
 
-    result, local_position = drone_odometry_local.DronePositionLocal.create(north, east, down)
+    result, local_position = position_local.PositionLocal.create(north, east, down)
     if not result:
         return False, None
 
@@ -31,9 +31,9 @@ def position_global_to_local(
 
 
 def position_local_to_global(
-    local_position: drone_odometry_local.DronePositionLocal,
-    home_location: drone_odometry.DronePosition,
-) -> "tuple[bool, drone_odometry.DronePosition | None]":
+    local_position: position_local.PositionLocal,
+    home_location: position_global.PositionGlobal,
+) -> "tuple[bool, position_global.PositionGlobal| None]":
     """
     Converts local position (NED) to global position (geodetic).
     """
@@ -46,7 +46,7 @@ def position_local_to_global(
         home_location.altitude,
     )
 
-    result, global_position = drone_odometry.DronePosition.create(latitude, longitude, altitude)
+    result, global_position = position_global.PositionGlobal.create(latitude, longitude, altitude)
     if not result:
         return False, None
 
