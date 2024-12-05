@@ -5,9 +5,10 @@ Creates flight controller and produces local drone odometry coupled with a times
 import math
 
 from modules import decision_command
-from modules import drone_odometry_local
-from ..common.mavlink.modules import drone_odometry
-from ..common.mavlink.modules import flight_controller
+from modules import odometry_and_waypoint
+from modules.common.modules.mavlink import flight_controller
+from modules.common.modules import position_global
+from modules.common.modules import position_local
 from . import conversions
 
 
@@ -33,7 +34,7 @@ class FlightInterface:
         if not result:
             return False, None
 
-        result, home_location = controller.get_home_location(timeout_home)
+        result, home_location = controller.get_home_position(timeout_home)
         if not result:
             return False, None
 
@@ -67,8 +68,8 @@ class FlightInterface:
         self,
         create_key: object,
         controller: flight_controller.FlightController,
-        home_location: drone_odometry.DronePosition,
-        first_waypoint: drone_odometry_local.DronePositionLocal,
+        home_location: position_global.PositionGlobal,
+        first_waypoint: position_local.PositionLocal,
         first_waypoint_distance_tolerance: float,
     ) -> None:
         """
@@ -84,7 +85,7 @@ class FlightInterface:
         self.__run = False
 
     def __distance_to_first_waypoint_squared(
-        self, local_position: drone_odometry_local.DronePositionLocal
+        self, local_position: position_local.PositionLocal
     ) -> float:
         """
         Calculates the current distance in metres to the first waypoint (value is squared).
@@ -93,7 +94,7 @@ class FlightInterface:
         delta_y = local_position.east - self.first_waypoint.east
         return delta_x**2 + delta_y**2
 
-    def run(self) -> "tuple[bool, drone_odometry_local.DroneOdometryLocal | None]":
+    def run(self) -> "tuple[bool, odometry_and_waypoint.OdometryAndWaypoint | None]":
         """
         Returns local drone odometry with timestamp.
         """
@@ -115,7 +116,7 @@ class FlightInterface:
         if not result:
             return False, None
 
-        flight_mode = drone_odometry_local.FlightMode(flight_mode.value)
+        flight_mode = odometry_and_waypoint.FlightMode(flight_mode.value)
 
         if not self.__run:
             distance_to_first_waypoint_squared = self.__distance_to_first_waypoint_squared(
@@ -126,8 +127,20 @@ class FlightInterface:
                 self.__run = True
                 print("Obstacle avoidance started!")
 
-        return drone_odometry_local.DroneOdometryLocal.create(
-            local_position, drone_orientation, flight_mode
+        result, next_waypoint = self.controller.get_next_waypoint()
+        if not result:
+            print("Error initializing flight interface: check waypoints are loaded.")
+            return False, None
+
+        result, next_waypoint_local = conversions.position_global_to_local(
+            next_waypoint, self.home_location
+        )
+
+        if not result:
+            return False, None
+
+        return odometry_and_waypoint.OdometryAndWaypoint.create(
+            local_position, drone_orientation, flight_mode, next_waypoint_local
         )
 
     def run_decision_handler(self, command: decision_command.DecisionCommand) -> bool:
