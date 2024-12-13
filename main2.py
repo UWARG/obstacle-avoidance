@@ -86,7 +86,9 @@ def main() -> int:
     angle_out_queue = worker.queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
     # Flight Interface queues
-    command_to_flight_interface_queue = worker.queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    command_to_flight_interface_queue = worker.queue_wrapper.QueueWrapper(
+        mp_manager, QUEUE_MAX_SIZE
+    )
 
     # Processes
     detection_process = mp.Process(
