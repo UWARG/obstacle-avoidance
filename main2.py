@@ -40,6 +40,7 @@ def main() -> int:
 
     # Set constants
     try:
+        # pylint: disable=invalid-name
         # Local constants
         QUEUE_MAX_SIZE = config["queue_max_size"]
 
