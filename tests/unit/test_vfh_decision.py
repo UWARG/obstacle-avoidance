@@ -3,23 +3,49 @@ Test for VFHDecision module.
 """
 
 import pytest
+
+from modules import odometry_and_waypoint
 from modules import polar_obstacle_density
 from modules.vfh_decision import vfh_decision
+
+from modules.common.modules import position_local
+from modules.common.modules import orientation
 
 DENSITY_THRESHOLD = 0.5
 MIN_CONSEC_SECTORS = 3
 WIDE_VALLEY_THRESHOLD = 6
-TARGET_ANGLE = 0.0  # Target directly ahead
 
 # pylint: disable=redefined-outer-name
 
 
 @pytest.fixture()
+def odometry_waypoint_directly_ahead() -> odometry_and_waypoint.OdometryAndWaypoint:
+    result, drone_pos = position_local.PositionLocal.create(0.0, 0.0, 0.0)
+    assert result, "Failed to create drone position"
+
+    result, waypoint_pos = position_local.PositionLocal.create(10.0, 0.0, 0.0)
+    assert result, "Failed to create waypoint position"
+
+    result, drone_orientation = orientation.Orientation.create(0.0, 0.0, 0.0)
+    assert result, "Failed to create drone orientation"
+
+    flight_mode = odometry_and_waypoint.FlightMode.AUTO
+
+    result, odom_wp = odometry_and_waypoint.OdometryAndWaypoint.create(
+        drone_pos,
+        drone_orientation,
+        flight_mode,
+        waypoint_pos,
+    )
+    assert result, "Failed to create OdometryAndWaypoint"
+
+    return odom_wp
+
+
+@pytest.fixture()
 def decision_maker() -> vfh_decision.VFHDecision:
     """Creates a VFHDecision instance with predefined parameters."""
-    return vfh_decision.VFHDecision(
-        DENSITY_THRESHOLD, MIN_CONSEC_SECTORS, WIDE_VALLEY_THRESHOLD, TARGET_ANGLE
-    )
+    return vfh_decision.VFHDecision(DENSITY_THRESHOLD, MIN_CONSEC_SECTORS, WIDE_VALLEY_THRESHOLD)
 
 
 def create_polar_obstacle_density(
@@ -116,9 +142,12 @@ class TestVFHDecision:
         self,
         decision_maker: vfh_decision.VFHDecision,
         open_space_target_ahead: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint_directly_ahead: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """Tests decision-making when the target direction is completely open."""
-        result, steering_angle = decision_maker.run(open_space_target_ahead)
+        result, steering_angle = decision_maker.run(
+            open_space_target_ahead, odometry_waypoint_directly_ahead
+        )
         assert not result
         assert steering_angle is None
 
@@ -126,9 +155,12 @@ class TestVFHDecision:
         self,
         decision_maker: vfh_decision.VFHDecision,
         target_completely_blocked: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint_directly_ahead: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """Tests decision-making when the target direction is completely blocked."""
-        result, steering_angle = decision_maker.run(target_completely_blocked)
+        result, steering_angle = decision_maker.run(
+            target_completely_blocked, odometry_waypoint_directly_ahead
+        )
         assert result
         assert steering_angle == "REVERSE"
 
@@ -136,9 +168,12 @@ class TestVFHDecision:
         self,
         decision_maker: vfh_decision.VFHDecision,
         target_open_ne_direction_nw: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint_directly_ahead: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """Tests decision-making when NE is open but NW is blocked."""
-        result, steering_angle = decision_maker.run(target_open_ne_direction_nw)
+        result, steering_angle = decision_maker.run(
+            target_open_ne_direction_nw, odometry_waypoint_directly_ahead
+        )
         assert not result
         assert steering_angle is None
 
@@ -146,9 +181,12 @@ class TestVFHDecision:
         self,
         decision_maker: vfh_decision.VFHDecision,
         target_open_narrow_valley: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint_directly_ahead: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """Tests decision-making when a narrow valley surrounds the target."""
-        result, steering_angle = decision_maker.run(target_open_narrow_valley)
+        result, steering_angle = decision_maker.run(
+            target_open_narrow_valley, odometry_waypoint_directly_ahead
+        )
         assert result
         assert steering_angle == "REVERSE"
 
@@ -156,9 +194,12 @@ class TestVFHDecision:
         self,
         decision_maker: vfh_decision.VFHDecision,
         target_obstructed_front_sector: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint_directly_ahead: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """Tests decision making when front sector obstructed, rest open"""
-        result, steering_angle = decision_maker.run(target_obstructed_front_sector)
+        result, steering_angle = decision_maker.run(
+            target_obstructed_front_sector, odometry_waypoint_directly_ahead
+        )
         assert result
         assert steering_angle == -45
 
@@ -166,9 +207,12 @@ class TestVFHDecision:
         self,
         decision_maker: vfh_decision.VFHDecision,
         fragmented_open_space: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint_directly_ahead: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> None:
         """Tests the decision module with fragmented open spaces of 10 degrees each"""
 
-        result, steering_angle = decision_maker.run(fragmented_open_space)
+        result, steering_angle = decision_maker.run(
+            fragmented_open_space, odometry_waypoint_directly_ahead
+        )
         assert result  # Obstacle avoidance is required
         assert steering_angle == "REVERSE"

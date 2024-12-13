@@ -2,6 +2,9 @@
 Processes VFH data to compute optimal steering directions.
 """
 
+import math
+
+from modules import odometry_and_waypoint
 from modules import polar_obstacle_density
 
 
@@ -15,7 +18,6 @@ class VFHDecision:
         density_threshold: float,
         min_consec_sectors: int,
         wide_valley_threshold: int,
-        target_angle: float,
     ) -> None:
         """
         Initializes VFHDecision with density threshold and valley parameters.
@@ -27,18 +29,27 @@ class VFHDecision:
         self.density_threshold = density_threshold
         self.min_consec_sectors = min_consec_sectors
         self.wide_valley_threshold = wide_valley_threshold
-        self.target_angle = target_angle
 
     def run(
-        self, polar_density: polar_obstacle_density.PolarObstacleDensity
+        self,
+        polar_density: polar_obstacle_density.PolarObstacleDensity,
+        odometry_waypoint: odometry_and_waypoint.OdometryAndWaypoint,
     ) -> "tuple[bool, float | None | str]":
         """
         Identifies valleys and computes the steering angle.
 
         :param polar_density: PolarObstacleDensity object containing sector densities.
-        :param target_angle: Desired direction of travel.
+        :param odometry_waypoint: OdometryAndWaypoint object containing drone's current odometry, flight mode, and next wp info.
         :return: Tuple (success: bool, steering_angle: float | None).
         """
+
+        # Compute target angle from drone's current position and next waypoint
+        drone_pos = odometry_waypoint.local_position
+        waypoint_pos = odometry_waypoint.next_waypoint
+        delta_north = waypoint_pos.north - drone_pos.north
+        delta_east = waypoint_pos.east - drone_pos.east
+        target_angle = math.degrees(math.atan2(delta_east, delta_north))
+
         candidate_valleys = []
         current_valley = []
 
@@ -59,17 +70,18 @@ class VFHDecision:
         best_valley = None
         min_distance = float("inf")
 
-        # Wide Valley Pre-Check
-        for valley in candidate_valleys:
-            near_angle = valley[0].angle_start
-            far_angle = valley[-1].angle_end
+        # Wide Valley Pre-Check for AUTO mode
+        if odometry_waypoint.flight_mode == odometry_and_waypoint.FlightMode.AUTO:
+            for valley in candidate_valleys:
+                near_angle = valley[0].angle_start
+                far_angle = valley[-1].angle_end
 
-            # Ensure the valley contains 0° and has enough space on both sides
-            if (
-                near_angle <= -self.wide_valley_threshold / 2
-                and far_angle >= self.wide_valley_threshold / 2
-            ):
-                return False, None  # No need for obstacle avoidance
+                # Ensure the valley contains 0° and has enough space on both sides
+                if (
+                    near_angle <= -self.wide_valley_threshold / 2
+                    and far_angle >= self.wide_valley_threshold / 2
+                ):
+                    return False, None  # No need for obstacle avoidance
 
         for valley in candidate_valleys:
             near_angle = valley[0].angle_start
@@ -77,7 +89,7 @@ class VFHDecision:
             center_angle = (near_angle + far_angle) / 2
             print(f"Candidate Valley: Start={near_angle}, End={far_angle}, Center={center_angle}")
 
-            distance = abs(center_angle - self.target_angle)
+            distance = abs(center_angle - target_angle)
             if distance < min_distance:
                 min_distance = distance
                 best_valley = (near_angle, far_angle)
