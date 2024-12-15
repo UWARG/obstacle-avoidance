@@ -7,7 +7,7 @@ import time
 
 from .. import decision_command
 from .. import detections_and_odometry
-from .. import drone_odometry_local
+from .. import odometry_and_waypoint
 
 
 class Decision:
@@ -29,7 +29,7 @@ class Decision:
         self,
         detections_and_odometries: "deque[detections_and_odometry.DetectionsAndOdometry]",
         proximity_limit: float,
-        current_flight_mode: drone_odometry_local.FlightMode,
+        current_flight_mode: odometry_and_waypoint.FlightMode,
     ) -> "tuple[bool, decision_command.DecisionCommand | None]":
         """
         Runs simple collision avoidance where drone will stop within a set distance of an object.
@@ -43,29 +43,29 @@ class Decision:
 
             if self.__command_requested:
                 if start_time - time.time() > self.command_timeout:
-                    if self.__last_command_sent == drone_odometry_local.FlightMode.STOPPED:
+                    if self.__last_command_sent == odometry_and_waypoint.FlightMode.LOITER:
                         return (
                             decision_command.DecisionCommand.create_stop_mission_and_halt_command()
                         )
-                    if self.__last_command_sent == drone_odometry_local.FlightMode.MOVING:
+                    if self.__last_command_sent == odometry_and_waypoint.FlightMode.AUTO:
                         return decision_command.DecisionCommand.create_resume_mission_command()
                 continue
 
-            if current_flight_mode == drone_odometry_local.FlightMode.STOPPED:
+            if current_flight_mode == odometry_and_waypoint.FlightMode.LOITER:
                 for detection in detections:
                     if detection.distance < proximity_limit:
                         return False, None
                 self.__command_requested = True
-                self.__last_command_sent = drone_odometry_local.FlightMode.MOVING
+                self.__last_command_sent = odometry_and_waypoint.FlightMode.AUTO
                 self.detections_and_odometries.clear()
                 start_time = time.time()
                 return decision_command.DecisionCommand.create_resume_mission_command()
 
-            if current_flight_mode == drone_odometry_local.FlightMode.MOVING:
+            if current_flight_mode == odometry_and_waypoint.FlightMode.AUTO:
                 for detection in detections:
                     if detection.distance < proximity_limit:
                         self.__command_requested = True
-                        self.__last_command_sent = drone_odometry_local.FlightMode.STOPPED
+                        self.__last_command_sent = odometry_and_waypoint.FlightMode.LOITER
                         self.detections_and_odometries.clear()
                         start_time = time.time()
                         return (

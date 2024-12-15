@@ -9,7 +9,7 @@ from worker import queue_wrapper
 from worker import worker_controller
 
 from modules import detections_and_odometry
-from modules import drone_odometry_local
+from modules import odometry_and_waypoint
 from modules import lidar_detection
 
 
@@ -38,7 +38,7 @@ def data_merge_worker(
             time.sleep(delay)
 
         try:
-            odometry: drone_odometry_local.DroneOdometryLocal = (
+            odometry: odometry_and_waypoint.OdometryAndWaypoint = (
                 odometry_input_queue.queue.get_nowait()
             )
 
