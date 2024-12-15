@@ -17,6 +17,7 @@ class FlightMode(enum.Enum):
     AUTO = "AUTO"
     LOITER = "LOITER"
     GUIDED = "GUIDED"
+    MANUAL = "MANUAL"
     RTL = "RTL"
 
 
