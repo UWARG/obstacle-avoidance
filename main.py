@@ -1,5 +1,5 @@
 """
-Main
+New main
 """
 
 import multiprocessing as mp
@@ -8,14 +8,15 @@ import time
 
 import yaml
 
-from modules.data_merge import data_merge_worker
-from modules.decision import decision_worker
-from modules.detection import detection_worker
-from modules.flight_interface import flight_interface_worker
-from worker import queue_wrapper
-from worker import worker_controller
+import worker.queue_wrapper
+import worker.worker_controller
+import modules.lidar_parser.lidar_parser_worker
+import modules.vfh.vfh_worker
+import modules.vfh_decision.vfh_decision_worker
+import modules.detection.detection_worker
+import modules.flight_interface.flight_interface_worker
 
-CONFIG_FILE_PATH = pathlib.Path("config.yaml")
+CONFIG_FILE_PATH = pathlib.Path("config2.yaml")
 
 
 def main() -> int:
@@ -39,17 +40,11 @@ def main() -> int:
 
     # Set constants
     try:
-        # Local constants
         # pylint: disable=invalid-name
+        # Local constants
         QUEUE_MAX_SIZE = config["queue_max_size"]
 
-        FLIGHT_INTERFACE_ADDRESS = config["flight_interface"]["address"]
-        FLIGHT_INTERFACE_TIMEOUT = config["flight_interface"]["timeout"]
-        FLIGHT_INTERFACE_WORKER_PERIOD = config["flight_interface"]["worker_period"]
-        FIRST_WAYPOINT_DISTANCE_TOLERANCE = config["flight_interface"][
-            "first_waypoint_distance_tolerance"
-        ]
-
+        # Detection parameters
         SERIAL_PORT_NAME = config["detection"]["serial_port_name"]
         SERIAL_PORT_BAUDRATE = config["detection"]["serial_port_baudrate"]
         PORT_TIMEOUT = config["detection"]["port_timeout"]
@@ -58,40 +53,47 @@ def main() -> int:
         HIGH_ANGLE = config["detection"]["high_angle"]
         ROTATE_SPEED = config["detection"]["rotate_speed"]
 
-        DELAY = config["data_merge"]["delay"]
+        # VFH parameters
+        SECTOR_WIDTH = config["sector_width"]
+        MAX_VECTOR_MAGNITUDE = config["max_vector_magnitude"]
+        LINEAR_DECAY_RATE = config["linear_decay_rate"]
+        CONFIDENCE_VALUE = config["confidence_value"]
+        START_ANGLE = config["start_angle"]
+        END_ANGLE = config["end_angle"]
 
-        OBJECT_PROXIMITY_LIMIT = config["decision"]["object_proximity_limit"]
-        MAX_HISTORY = config["decision"]["max_history"]
-        COMMAND_TIMEOUT = config["decision"]["command_timeout"]
-        # pylint: enable=invalid-name
+        # VFH Decision parameters
+        DENSITY_THRESHOLD = config["density_threshold"]
+        MIN_CONSEC_SECTORS = config["min_consec_sectors"]
+        WIDE_VALLEY_THRESHOLD = config["wide_valley_threshold"]
+
+        # Flight interface parameters
+        FLIGHT_INTERFACE_ADDRESS = config["flight_interface"]["address"]
+        FLIGHT_INTERFACE_TIMEOUT = config["flight_interface"]["timeout"]
+        FLIGHT_INTERFACE_WORKER_PERIOD = config["flight_interface"]["worker_period"]
+        FIRST_WAYPOINT_DISTANCE_TOLERANCE = config["flight_interface"][
+            "first_waypoint_distance_tolerance"
+        ]
     except KeyError:
         print("Config key(s) not found.")
         return -1
 
     # Setup
-    controller = worker_controller.WorkerController()
+    controller = worker.worker_controller.WorkerController()
     mp_manager = mp.Manager()
 
-    flight_interface_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
-    detection_to_data_merge_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
-    merged_to_decision_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
-    command_to_flight_interface_queue = queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    detection_to_lidar_parsing_queue = worker.queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    oscillation_out_queue = worker.queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    density_out_queue = worker.queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
+    angle_out_queue = worker.queue_wrapper.QueueWrapper(mp_manager, QUEUE_MAX_SIZE)
 
-    flight_interface_process = mp.Process(
-        target=flight_interface_worker.flight_interface_worker,
-        args=(
-            FLIGHT_INTERFACE_ADDRESS,
-            FLIGHT_INTERFACE_TIMEOUT,
-            FIRST_WAYPOINT_DISTANCE_TOLERANCE,
-            FLIGHT_INTERFACE_WORKER_PERIOD,
-            command_to_flight_interface_queue,
-            flight_interface_to_data_merge_queue,
-            controller,
-        ),
+    # Flight Interface queues
+    command_to_flight_interface_queue = worker.queue_wrapper.QueueWrapper(
+        mp_manager, QUEUE_MAX_SIZE
     )
 
+    # Processes
     detection_process = mp.Process(
-        target=detection_worker.detection_worker,
+        target=modules.detection.detection_worker.detection_worker,
         args=(
             SERIAL_PORT_NAME,
             SERIAL_PORT_BAUDRATE,
@@ -100,58 +102,86 @@ def main() -> int:
             LOW_ANGLE,
             HIGH_ANGLE,
             ROTATE_SPEED,
-            detection_to_data_merge_queue,
+            detection_to_lidar_parsing_queue,
             controller,
         ),
     )
 
-    data_merge_process = mp.Process(
-        target=data_merge_worker.data_merge_worker,
+    lidar_parsing_process = mp.Process(
+        target=modules.lidar_parser.lidar_parser_worker.lidar_parser_worker,
         args=(
-            DELAY,
-            detection_to_data_merge_queue,
-            flight_interface_to_data_merge_queue,
-            merged_to_decision_queue,
+            detection_to_lidar_parsing_queue,
+            oscillation_out_queue,
             controller,
         ),
     )
 
-    decision_process = mp.Process(
-        target=decision_worker.decision_worker,
+    vfh_process = mp.Process(
+        target=modules.vfh.vfh_worker.vfh_worker,
         args=(
-            OBJECT_PROXIMITY_LIMIT,
-            MAX_HISTORY,
-            COMMAND_TIMEOUT,
-            merged_to_decision_queue,
+            SECTOR_WIDTH,
+            MAX_VECTOR_MAGNITUDE,
+            LINEAR_DECAY_RATE,
+            CONFIDENCE_VALUE,
+            START_ANGLE,
+            END_ANGLE,
+            oscillation_out_queue,
+            density_out_queue,
+            controller,
+        ),
+    )
+
+    vfh_decision_process = mp.Process(
+        target=modules.vfh_decision.vfh_decision_worker.vfh_decision_worker,
+        args=(
+            DENSITY_THRESHOLD,
+            MIN_CONSEC_SECTORS,
+            WIDE_VALLEY_THRESHOLD,
+            density_out_queue,
+            angle_out_queue,
+            controller,
+        ),
+    )
+
+    flight_interface_process = mp.Process(
+        target=modules.flight_interface.flight_interface_worker.flight_interface_worker,
+        args=(
+            FLIGHT_INTERFACE_ADDRESS,
+            FLIGHT_INTERFACE_TIMEOUT,
+            FIRST_WAYPOINT_DISTANCE_TOLERANCE,
+            FLIGHT_INTERFACE_WORKER_PERIOD,
+            angle_out_queue,
             command_to_flight_interface_queue,
             controller,
         ),
     )
 
-    # Run
-    flight_interface_process.start()
+    # Run (mimicking main logic)
     detection_process.start()
-    data_merge_process.start()
-    decision_process.start()
+    lidar_parsing_process.start()
+    vfh_process.start()
+    vfh_decision_process.start()
+    flight_interface_process.start()
 
     while True:
         try:
             time.sleep(0.1)
-
         except KeyboardInterrupt:
             controller.request_exit()
             break
 
     # Teardown
-    flight_interface_to_data_merge_queue.fill_and_drain_queue()
-    detection_to_data_merge_queue.fill_and_drain_queue()
-    merged_to_decision_queue.fill_and_drain_queue()
+    detection_to_lidar_parsing_queue.fill_and_drain_queue()
+    oscillation_out_queue.fill_and_drain_queue()
+    density_out_queue.fill_and_drain_queue()
+    angle_out_queue.fill_and_drain_queue()
     command_to_flight_interface_queue.fill_and_drain_queue()
 
-    flight_interface_process.join()
     detection_process.join()
-    data_merge_process.join()
-    decision_process.join()
+    lidar_parsing_process.join()
+    vfh_process.join()
+    vfh_decision_process.join()
+    flight_interface_process.join()
 
     return 0
 
