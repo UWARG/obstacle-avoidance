@@ -1,27 +1,33 @@
-# Global constants for main.
+# Global constants for new main
 
 queue_max_size: 10
 
-flight_interface:
-    address: "/dev/ttyUSB0"
-    timeout: 10.0 # seconds
-    worker_period: 0.1 # seconds
-    first_waypoint_distance_tolerance: 1.0 # metres
-
+# Detection Worker
 detection:
-    serial_port_name: "/dev/ttyACM0"
-    serial_port_baudrate: 921600
-    port_timeout: 0.1 # seconds
-    update_rate: 5
-    low_angle: -170 # degrees
-    high_angle: 170 # degrees
-    rotate_speed: 5
+  serial_port_name: "/dev/ttyACM0"
+  serial_port_baudrate: 921600
+  port_timeout: 0.1 # seconds
+  update_rate: 5
+  low_angle: -170 # degrees
+  high_angle: 170 # degrees
+  rotate_speed: 5
 
-data_merge:
-    delay: 0.1 # seconds
+# Vector Field Histogram Worker
+sector_width: 5
+max_vector_magnitude: 1.0 # Value to indicate a sector with maximum density
+linear_decay_rate: 0.1 # decrease in obstacle-density with length
+confidence_value: 1.0 # scaling distance values based on LiDAR error
+start_angle: -90 # degrees
+end_angle: 90 # degrees
 
-decision:
-    object_proximity_limit: 10.0 # metres
-    max_history: 80
-    command_timeout: 1.0 # seconds
+# VFH Decision Worker
+density_threshold: 0.5
+min_consec_sectors: 3
+wide_valley_threshold: 6
 
+# Flight Interface Worker
+flight_interface:
+  address: "/dev/ttyUSB0"
+  timeout: 10.0 # seconds
+  worker_period: 0.1 # seconds
+  first_waypoint_distance_tolerance: 1.0 # metres
