@@ -7,9 +7,10 @@ import queue
 import time
 
 from modules import detections_and_odometry
-from modules import drone_odometry_local
+from modules import odometry_and_waypoint
 from modules import lidar_detection
-from modules.common.mavlink.modules import drone_odometry
+from modules.common.modules import position_local
+from modules.common.modules import orientation
 from modules.data_merge import data_merge_worker
 from worker import queue_wrapper
 from worker import worker_controller
@@ -36,18 +37,20 @@ def simulate_flight_interface_worker(in_queue: queue_wrapper.QueueWrapper, ident
     """
     Place example odometry into the queue.
     """
-    result, position = drone_odometry_local.DronePositionLocal.create(float(identifier), 0.0, 0.0)
+    result, position = position_local.PositionLocal.create(float(identifier), 0.0, 0.0)
     assert result
     assert position is not None
 
-    result, orientation = drone_odometry.DroneOrientation.create(0.0, 0.0, 0.0)
+    result, orientation_instance = orientation.Orientation.create(0.0, 0.0, 0.0)
     assert result
-    assert orientation is not None
+    assert orientation_instance is not None
 
-    flight_mode = drone_odometry_local.FlightMode.MOVING
+    flight_mode = odometry_and_waypoint.OdometryAndWaypoint.FlightMode.AUTO
 
-    result, odometry = drone_odometry_local.DroneOdometryLocal.create(
-        position, orientation, flight_mode
+    next_waypoint_local = position_local.PositionLocal.create(0.0, 0.0, 0.0)
+
+    result, odometry = odometry_and_waypoint.OdometryAndWaypoint.create(
+        position, orientation_instance, flight_mode, next_waypoint_local
     )
     assert result
     assert odometry is not None
@@ -123,15 +126,15 @@ def main() -> int:
             print("queue is empty")
             time.sleep(DELAY)
 
-    # Teardown
-    controller.request_exit()
+        # Teardown
+        controller.request_exit()
 
-    detection_in_queue.fill_and_drain_queue()
-    odometry_in_queue.fill_and_drain_queue()
+        detection_in_queue.fill_and_drain_queue()
+        odometry_in_queue.fill_and_drain_queue()
 
-    worker.join()
+        worker.join()
 
-    return 0
+        return 0
 
 
 if __name__ == "__main__":
